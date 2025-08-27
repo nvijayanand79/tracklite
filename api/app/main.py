@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .config import settings
-from .routers import health, owner, receipts, auth, labtests
+from .routers import health, owner, receipts, auth, labtests, reports, invoices
 from .db import init_db, close_db
 
 app = FastAPI(title="TraceLite API", version="0.1.0")
@@ -19,12 +19,14 @@ app.include_router(auth.router)
 app.include_router(owner.router, prefix="/owner")
 app.include_router(receipts.router)
 app.include_router(labtests.router)
+app.include_router(reports.router)
+app.include_router(invoices.router)
 
 @app.on_event("startup")
 async def startup_event():
     """Initialize database on startup"""
     # Import models to ensure they're registered with SQLAlchemy
-    from .models import receipt, labtest  # noqa
+    from .models import receipt, labtest, report, invoice  # noqa
     await init_db()
 
 @app.on_event("shutdown")

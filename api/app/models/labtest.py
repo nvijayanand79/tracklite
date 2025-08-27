@@ -42,6 +42,9 @@ class LabTest(Base):
     # Relationship to LabTransfer
     transfers = relationship("LabTransfer", back_populates="labtest", cascade="all, delete-orphan")
     
+    # Relationship to Report
+    reports = relationship("Report", back_populates="labtest", cascade="all, delete-orphan")
+    
     def __repr__(self):
         return f"<LabTest(id={self.id}, lab_doc_no='{self.lab_doc_no}', status='{self.test_status}')>"
     

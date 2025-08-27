@@ -47,7 +47,8 @@ def verify_token(token: str) -> Optional[Dict[str, Any]]:
 
 def generate_otp_code() -> str:
     """Generate a 6-digit OTP code"""
-    return f"{secrets.randbelow(1000000):06d}"
+    # For development, always return 123456
+    return "123456"
 
 # Dummy user database (in production, this would be a real database)
 DUMMY_USERS = {
