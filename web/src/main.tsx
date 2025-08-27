@@ -12,6 +12,12 @@ import LabTestsList from './pages/LabTestsList'
 import LabTestForm from './pages/LabTestForm'
 import LabTestDetail from './pages/LabTestDetail'
 import LabTestTransfer from './pages/LabTestTransfer'
+import ReportsList from './pages/ReportsList'
+import ReportForm from './pages/ReportForm'
+import ReportDetail from './pages/ReportDetail'
+import InvoicesList from './pages/InvoicesList'
+import InvoiceForm from './pages/InvoiceForm'
+import InvoiceDetail from './pages/InvoiceDetail'
 import ProtectedRoute from './components/ProtectedRoute'
 
 const router = createBrowserRouter([
@@ -67,29 +73,53 @@ const router = createBrowserRouter([
       </ProtectedRoute>
     ) 
   },
+  // Reports routes
   { 
     path: '/reports', 
     element: (
       <ProtectedRoute>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">Reports</h1>
-            <p className="text-gray-600">This page is protected and requires authentication.</p>
-          </div>
-        </div>
+        <ReportsList />
       </ProtectedRoute>
     ) 
   },
   { 
+    path: '/reports/new', 
+    element: (
+      <ProtectedRoute>
+        <ReportForm />
+      </ProtectedRoute>
+    ) 
+  },
+  { 
+    path: '/reports/:id', 
+    element: (
+      <ProtectedRoute>
+        <ReportDetail />
+      </ProtectedRoute>
+    ) 
+  },
+  // Invoices routes
+  { 
     path: '/invoices', 
     element: (
       <ProtectedRoute>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">Invoices</h1>
-            <p className="text-gray-600">This page is protected and requires authentication.</p>
-          </div>
-        </div>
+        <InvoicesList />
+      </ProtectedRoute>
+    ) 
+  },
+  { 
+    path: '/invoices/new', 
+    element: (
+      <ProtectedRoute>
+        <InvoiceForm />
+      </ProtectedRoute>
+    ) 
+  },
+  { 
+    path: '/invoices/:id', 
+    element: (
+      <ProtectedRoute>
+        <InvoiceDetail />
       </ProtectedRoute>
     ) 
   },
