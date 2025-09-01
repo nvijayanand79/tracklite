@@ -1,6 +1,6 @@
 {
   "name": "TrackLite Codespaces Demo",
-  "image": "mcr.microsoft.com/devcontainers/python:3.12-node-20",
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
   "features": {},
   "postCreateCommand": "bash .devcontainer/setup.sh",
   "customizations": {
