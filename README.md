@@ -4,7 +4,7 @@
 
 ### API
 - Open your browser and go to: [http://localhost:8000/docs](http://localhost:8000/docs)
-	- This opens the interactive Swagger UI for the API.
+  - This opens the interactive Swagger UI for the API.
 - Try the `/healthz` endpoint to check if the API is running.
 - Explore other endpoints (receipts, labtests, etc.) as available.
 
@@ -14,8 +14,8 @@
 
 ### Demo Login (if enabled)
 - Use the following demo credentials (if your app supports login):
-	- Email: `contact@acme.com` or `lab@techstart.com`
-	- OTP: `123456`
+  - Email: `contact@acme.com` or `lab@techstart.com`
+  - OTP: `123456`
 
 ### Sample Data
 - The seeded database includes demo customers: Alice Demo, Bob Demo, Charlie Demo.
