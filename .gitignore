@@ -226,9 +226,11 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Editor directories and files
+
+# Ignore local VS Code settings but keep shared debug/task configs
 .vscode/*
-!.vscode/extensions.json
+!.vscode/tasks.json
+!.vscode/launch.json
 .idea
 .DS_Store
 *.suo
