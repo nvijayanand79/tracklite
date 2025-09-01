@@ -227,10 +227,6 @@ pnpm-debug.log*
 lerna-debug.log*
 
 
-# Ignore local VS Code settings but keep shared debug/task configs
-.vscode/*
-!.vscode/tasks.json
-!.vscode/launch.json
 .idea
 .DS_Store
 *.suo
