@@ -1,14 +1,17 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+
 # Python
-if ! [ -d .venv ]; then
-  python -m venv .venv
+if ! [ -d api/.venv ]; then
+  python -m venv api/.venv
 fi
 # shellcheck source=/dev/null
-source .venv/bin/activate || true
+source api/.venv/bin/activate || true
 python -m pip install -U pip wheel || true
-[ -f requirements.txt ] && pip install -r requirements.txt || true
+if [ -f api/requirements.txt ]; then
+  pip install -r api/requirements.txt || true
+fi
 
 # Node (web/)
 if [ -f web/package.json ]; then

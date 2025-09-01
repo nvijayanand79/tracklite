@@ -1,60 +1,48 @@
 @echo off
-echo 🚀 Starting TraceLite Docker Demo...
+echo 🚀 TrackLite Demo Launcher
+echo ========================
 
-echo Checking Docker installation...
-docker --version >nul 2>&1
-if %errorlevel% neq 0 (
-    echo ❌ Docker is not installed or not in PATH
-    echo Please install Docker Desktop from: https://www.docker.com/products/docker-desktop
-    pause
-    exit /b 1
-)
+echo 🔧 Checking dependencies...
 
-echo ✅ Docker found!
-
-echo.
-echo 🛠️ Building and starting services...
-
-REM Try Docker Compose V2 first
-docker compose up --build -d >nul 2>&1
-if %errorlevel% equ 0 (
-    echo ✅ Services started with Docker Compose V2
-    goto :success
-)
-
-REM Fallback to V1
-echo Trying Docker Compose V1...
-docker-compose up --build -d >nul 2>&1
-if %errorlevel% equ 0 (
-    echo ✅ Services started with Docker Compose V1
-    goto :success
+REM Check Python venv
+if not exist "api\.venv\Scripts\activate.bat" (
+    echo Installing Python dependencies...
+    call setup.bat
 ) else (
-    echo ❌ Failed to start services
-    echo Please check Docker installation and try again
-    pause
-    exit /b 1
+    echo ✅ Python dependencies already installed
 )
 
-:success
+REM Check Node modules
+if not exist "web\node_modules" (
+    echo 📦 Installing web dependencies...
+    cd web
+    npm install
+    cd ..
+) else (
+    echo ✅ Web dependencies already installed
+)
+
+echo 🌱 Seeding demo data...
+cd api
+call .venv\Scripts\activate
+python ..\scripts\seed_demo.py
+cd ..
+
+echo ✅ Setup complete! Starting services...
+
+REM Start Python API
+start "TrackLite API" cmd /k "cd /d %~dp0\api && call .venv\Scripts\activate && .venv\Scripts\uvicorn.exe app.main:app --host 0.0.0.0 --port 8000 --reload"
+
+REM Start Webapp
+start "TrackLite Web" cmd /k "cd /d %~dp0\web && npm run dev -- --host"
+
+echo 🎉 TrackLite is starting up!
 echo.
-echo 🎉 TraceLite is starting up!
-echo ⏳ Please wait 30-60 seconds for initialization...
+echo 📄 See DEMO_GUIDE.md for functionalities and test instructions
 echo.
 echo 🌐 Access URLs:
-echo    Frontend: http://localhost
+echo    Web App: http://localhost:5173
 echo    API Docs: http://localhost:8000/docs
 echo.
-echo 📧 Demo Login (OTP: 123456):
-echo    - contact@acme.com
-echo    - lab@techstart.com
-echo    - samples@greenenergy.com
-echo.
-echo 🔍 Demo Tracking IDs:
-echo    - RCP-001 / LAB-2024-001
-echo    - RCP-002 / LAB-2024-002
-echo    - RCP-003 / LAB-2024-003
-echo.
-echo Press any key to run connectivity tests...
-pause >nul
-
-call test-docker.bat
+pause
+exit /b
