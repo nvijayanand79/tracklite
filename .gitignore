@@ -226,7 +226,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-
+ # Editor directories and files
 .idea
 .DS_Store
 *.suo
