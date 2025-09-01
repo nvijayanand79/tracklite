@@ -160,37 +160,42 @@ The system comes pre-populated with:
 
 ### Common Issues:
 
-1. **"admin@example.com login not working":**
+1. **"Login not working on public URLs" (GitHub Codespaces, etc.):**
+   - The API now supports wildcard CORS origins for `*.github.dev`, `*.github.com`, `*.vscode.dev`
+   - If you're still getting CORS errors, check the browser console for specific error messages
+   - Make sure you're using HTTPS URLs for the frontend
+
+2. **"admin@example.com login not working":**
    - Make sure you're using the **password login** endpoint: `POST /auth/login`
    - Use email: `admin@example.com` and password: `admin123`
    - This is NOT an OTP login - it's direct password authentication
 
-2. **"OTP login not working":**
+3. **"OTP login not working":**
    - For email OTP: Use `contact@acme.com` or `lab@techstart.com`
    - OTP is always `123456` for demo purposes
    - First call `/auth/owner/email-otp-init`, then `/auth/owner/email-otp-verify`
 
-3. **"Wrong endpoint":**
+4. **"Wrong endpoint":**
    - Admin login: `POST /auth/login` (email + password)
    - Owner login: `POST /auth/owner/email-otp-init` then `POST /auth/owner/email-otp-verify` (email + OTP)
 
-4. **"Token expired":**
+5. **"Token expired":**
    - Admin tokens expire in 30 minutes
    - Owner tokens expire in 15 minutes
    - Simply login again to get a new token
 
-5. **"Module not found" errors:**
+6. **"Module not found" errors:**
    - Re-run `start-demo.bat` - it will reinstall dependencies
 
-6. **Port already in use:**
+7. **Port already in use:**
    - Stop any existing services on ports 5173 or 8000
    - Or change ports in the configuration
 
-7. **Database errors:**
+8. **Database errors:**
    - Delete `demo.db` file and re-run the demo
    - Check that SQLite is working properly
 
-8. **Web app not loading:**
+9. **Web app not loading:**
    - Ensure Node.js 20+ is installed
    - Check the "TrackLite Web" terminal window for errors
 
