@@ -72,9 +72,33 @@ The system comes pre-populated with:
 - **Bob Demo** (bob@example.com)  
 - **Charlie Demo** (charlie@example.com)
 
-### Demo Login Credentials (if auth is enabled)
-- **Email:** `contact@acme.com` or `lab@techstart.com`
-- **OTP:** `123456`
+### Demo Login Credentials
+
+#### 🔐 Admin Login (Full System Access)
+- **Method:** Email + Password
+- **Email:** `admin@example.com`
+- **Password:** `admin123`
+- **Role:** Administrator
+- **Purpose:** Access admin panel, system management, all features
+- **API Endpoint:** `POST /auth/login`
+
+#### 📱 Owner Login (Limited Tracking Access)
+- **Method:** Email/Phone + OTP
+- **Demo Emails:** `contact@acme.com` or `lab@techstart.com`
+- **OTP Code:** `123456` (always generated for demo)
+- **Role:** Owner/Customer
+- **Purpose:** Track sample status, view receipts
+- **API Endpoints:**
+  - `POST /auth/owner/email-otp-init` (request OTP)
+  - `POST /auth/owner/email-otp-verify` (verify OTP)
+
+#### 📞 Phone OTP Login (Alternative)
+- **Method:** Phone + OTP
+- **Demo Phone:** Any phone number
+- **OTP Code:** Check console output after requesting
+- **API Endpoints:**
+  - `POST /auth/owner/otp-init` (request OTP)
+  - `POST /auth/owner/otp-verify` (verify OTP)
 
 ### Sample Tracking IDs
 - `RCP-001` / `LAB-2024-001`
@@ -121,7 +145,11 @@ The system comes pre-populated with:
    - Demonstrate Pydantic schemas
    - Explain database models
 
-3. **Deployment Options:**
+3. **Admin Access:**
+   - Login as admin: `admin@example.com` / `admin123`
+   - Show admin panel and system management features
+
+4. **Deployment Options:**
    - Local development (current setup)
    - Docker containers available
    - Cloud-ready (Codespaces included)
@@ -132,18 +160,37 @@ The system comes pre-populated with:
 
 ### Common Issues:
 
-1. **"Module not found" errors:**
+1. **"admin@example.com login not working":**
+   - Make sure you're using the **password login** endpoint: `POST /auth/login`
+   - Use email: `admin@example.com` and password: `admin123`
+   - This is NOT an OTP login - it's direct password authentication
+
+2. **"OTP login not working":**
+   - For email OTP: Use `contact@acme.com` or `lab@techstart.com`
+   - OTP is always `123456` for demo purposes
+   - First call `/auth/owner/email-otp-init`, then `/auth/owner/email-otp-verify`
+
+3. **"Wrong endpoint":**
+   - Admin login: `POST /auth/login` (email + password)
+   - Owner login: `POST /auth/owner/email-otp-init` then `POST /auth/owner/email-otp-verify` (email + OTP)
+
+4. **"Token expired":**
+   - Admin tokens expire in 30 minutes
+   - Owner tokens expire in 15 minutes
+   - Simply login again to get a new token
+
+5. **"Module not found" errors:**
    - Re-run `start-demo.bat` - it will reinstall dependencies
 
-2. **Port already in use:**
-   - Stop any existing services on ports 3000 or 8000
+6. **Port already in use:**
+   - Stop any existing services on ports 5173 or 8000
    - Or change ports in the configuration
 
-3. **Database errors:**
+7. **Database errors:**
    - Delete `demo.db` file and re-run the demo
    - Check that SQLite is working properly
 
-4. **Web app not loading:**
+8. **Web app not loading:**
    - Ensure Node.js 20+ is installed
    - Check the "TrackLite Web" terminal window for errors
 
