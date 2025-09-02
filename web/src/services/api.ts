@@ -1,10 +1,33 @@
 import axios from 'axios'
 
-const baseURL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
+// Dynamic API base URL detection
+const getApiBaseUrl = () => {
+  // Check environment variable first
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL
+  }
+
+  // Auto-detect based on current hostname
+  const currentHost = window.location.hostname
+
+  // For localhost, use localhost:8000
+  if (currentHost === 'localhost' || currentHost === '127.0.0.1') {
+    return 'http://localhost:8000'
+  }
+
+  // For public IPs or domains, construct API URL
+  // Assuming API is on same host but port 8000
+  const protocol = window.location.protocol
+  return `${protocol}//${currentHost}:8000`
+}
+
+const baseURL = getApiBaseUrl()
+
+console.log('🔗 API Base URL:', baseURL)
 
 export const api = axios.create({
   baseURL,
-  withCredentials: true,
+  // withCredentials: true,  // Disabled to avoid CORS preflight issues
 })
 
 // Request interceptor to add auth token

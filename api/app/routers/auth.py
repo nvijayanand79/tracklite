@@ -96,6 +96,11 @@ async def get_owner_user(current_user: Dict[str, Any] = Depends(get_current_user
     return current_user
 
 # Authentication Endpoints
+@router.options("/login")
+async def login_options():
+    """Handle preflight OPTIONS request for login"""
+    return {"message": "OK"}
+
 @router.post("/login", response_model=LoginResponse)
 async def login(request: LoginRequest):
     """Admin login with email and password"""

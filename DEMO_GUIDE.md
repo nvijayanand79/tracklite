@@ -156,6 +156,38 @@ The system comes pre-populated with:
 
 ---
 
+## 🌐 Public Deployment Configuration
+
+TrackLite is designed to work seamlessly in both local development and public cloud environments (GitHub Codespaces, VS Code Server, etc.).
+
+### Environment Setup for Public URLs
+
+1. **Frontend Configuration:**
+   - The web app automatically detects the API URL based on the hostname
+   - For localhost: Uses `http://localhost:8000`
+   - For public IPs: Uses the current hostname with port 8000
+   - Manual override: Create `web/.env` with `VITE_API_BASE_URL=http://your-public-ip:8000`
+
+2. **Backend CORS Configuration:**
+   - Supports wildcard origins for common cloud platforms:
+     - `*.github.dev` (GitHub Codespaces)
+     - `*.github.com` (GitHub)
+     - `*.vscode.dev` (VS Code Server)
+   - Allows all origins for maximum compatibility
+
+3. **Testing Public Deployment:**
+   - Clear browser cache before testing
+   - Check browser console for CORS errors
+   - Verify API health at `http://your-public-ip:8000/healthz`
+   - Test login functionality with admin credentials
+
+### Example Public Deployment URLs:
+- **Web App:** `https://your-codespace-name.github.dev:3000`
+- **API:** `https://your-codespace-name.github.dev:8000`
+- **API Docs:** `https://your-codespace-name.github.dev:8000/docs`
+
+---
+
 ## 🔧 Troubleshooting
 
 ### Common Issues:

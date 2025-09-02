@@ -83,6 +83,8 @@ cd api && source .venv/bin/activate && uvicorn app.main:app --reload --host 0.0.
 cd web && npm run dev -- --host
 ```
 
+**Note:** For public deployments (GitHub Codespaces, etc.), the web app automatically detects the API URL. No additional configuration needed!
+
 ---
 
 ## 🎯 Core Features

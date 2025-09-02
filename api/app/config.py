@@ -5,8 +5,8 @@ class Settings(BaseModel):
     APP_ENV: str = os.getenv("APP_ENV", "dev")
     API_PORT: int = int(os.getenv("API_PORT", "8000"))
 
-    # CORS configuration - more flexible for public URLs
-    CORS_ORIGINS_STR: str = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:5174,https://*.github.dev,https://*.github.com,https://*.vscode.dev")
+    # CORS configuration - allow all origins for maximum compatibility
+    CORS_ORIGINS_STR: str = os.getenv("CORS_ORIGINS", "*")
 
     @property
     def CORS_ORIGINS(self) -> list[str]:
