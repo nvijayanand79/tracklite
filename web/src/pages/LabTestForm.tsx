@@ -15,8 +15,8 @@ const labTestSchema = z.object({
   lab_person: z.string()
     .min(1, 'Lab person is required')
     .max(100, 'Lab person name must be 100 characters or less'),
-  test_status: z.enum(['QUEUED', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED', 'ON_HOLD']),
-  lab_report_status: z.enum(['PENDING', 'DRAFT', 'REVIEWED', 'FINALIZED', 'SENT']),
+  test_status: z.enum(['QUEUED', 'IN_PROGRESS', 'COMPLETED', 'FAILED', 'NEEDS_RETEST', 'ON_HOLD']),
+  lab_report_status: z.enum(['NOT_STARTED', 'DRAFT', 'READY', 'SIGNED_OFF']),
   remarks: z.string().max(500, 'Remarks must be 500 characters or less').optional()
 });
 
@@ -24,10 +24,11 @@ type LabTestFormData = z.infer<typeof labTestSchema>;
 
 interface Receipt {
   id: string;
-  tracking_number: string;
-  consigner_name: string;
+  tracking_number?: string;
+  receiver_name: string;
   branch: string;
-  total_amount: number;
+  company: string;
+  awb_no?: string;
 }
 
 const LabTestForm: React.FC = () => {
@@ -46,7 +47,7 @@ const LabTestForm: React.FC = () => {
     resolver: zodResolver(labTestSchema),
     defaultValues: {
       test_status: 'QUEUED',
-      lab_report_status: 'PENDING'
+      lab_report_status: 'NOT_STARTED'
     }
   });
 
@@ -122,7 +123,7 @@ const LabTestForm: React.FC = () => {
             <option value="">Select a receipt...</option>
             {receipts.map((receipt) => (
               <option key={receipt.id} value={receipt.id}>
-                {receipt.tracking_number} - {receipt.consigner_name} ({receipt.branch})
+                {receipt.tracking_number || 'No tracking'} - {receipt.receiver_name} ({receipt.branch})
               </option>
             ))}
           </select>
@@ -136,10 +137,13 @@ const LabTestForm: React.FC = () => {
           <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
             <h3 className="text-sm font-medium text-blue-900 mb-2">Selected Receipt Details</h3>
             <div className="text-sm text-blue-800">
-              <p><strong>Tracking:</strong> {selectedReceipt.tracking_number}</p>
-              <p><strong>Consigner:</strong> {selectedReceipt.consigner_name}</p>
+              <p><strong>Tracking:</strong> {selectedReceipt.tracking_number || 'Not assigned'}</p>
+              <p><strong>Receiver:</strong> {selectedReceipt.receiver_name}</p>
               <p><strong>Branch:</strong> {selectedReceipt.branch}</p>
-              <p><strong>Amount:</strong> ${selectedReceipt.total_amount.toFixed(2)}</p>
+              <p><strong>Company:</strong> {selectedReceipt.company}</p>
+              {selectedReceipt.awb_no && (
+                <p><strong>AWB:</strong> {selectedReceipt.awb_no}</p>
+              )}
             </div>
           </div>
         )}
@@ -191,7 +195,8 @@ const LabTestForm: React.FC = () => {
             <option value="QUEUED">Queued</option>
             <option value="IN_PROGRESS">In Progress</option>
             <option value="COMPLETED">Completed</option>
-            <option value="CANCELLED">Cancelled</option>
+            <option value="FAILED">Failed</option>
+            <option value="NEEDS_RETEST">Needs Retest</option>
             <option value="ON_HOLD">On Hold</option>
           </select>
           {errors.test_status && (
@@ -208,11 +213,10 @@ const LabTestForm: React.FC = () => {
             {...register('lab_report_status')}
             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            <option value="PENDING">Pending</option>
+            <option value="NOT_STARTED">Not Started</option>
             <option value="DRAFT">Draft</option>
-            <option value="REVIEWED">Reviewed</option>
-            <option value="FINALIZED">Finalized</option>
-            <option value="SENT">Sent</option>
+            <option value="READY">Ready</option>
+            <option value="SIGNED_OFF">Signed Off</option>
           </select>
           {errors.lab_report_status && (
             <p className="mt-1 text-sm text-red-600">{errors.lab_report_status.message}</p>

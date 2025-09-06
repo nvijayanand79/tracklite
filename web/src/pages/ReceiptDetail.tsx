@@ -14,7 +14,7 @@ interface Receipt {
   receiving_mode: string;
   forward_to_chennai: boolean;
   awb_no?: string;
-  tracking_number: string;
+  tracking_number?: string;
   created_at: string;
   updated_at: string;
 }
@@ -128,7 +128,7 @@ const ReceiptDetail: React.FC = () => {
           <div className="flex justify-between items-center mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Receipt Details</h1>
-              <p className="text-sm text-gray-600">Tracking Number: {receipt.tracking_number}</p>
+              <p className="text-sm text-gray-600">Tracking Number: {receipt.tracking_number || receipt.awb_no || '—'}</p>
             </div>
             <div className="flex gap-2">
               <button

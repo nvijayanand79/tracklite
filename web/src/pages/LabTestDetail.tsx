@@ -16,8 +16,8 @@ interface LabTest {
   receipt_id: string;
   lab_doc_no: string;
   lab_person: string;
-  test_status: 'QUEUED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'ON_HOLD';
-  lab_report_status: 'PENDING' | 'DRAFT' | 'REVIEWED' | 'FINALIZED' | 'SENT';
+  test_status: 'QUEUED' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED' | 'NEEDS_RETEST' | 'ON_HOLD';
+  lab_report_status: 'NOT_STARTED' | 'DRAFT' | 'READY' | 'SIGNED_OFF';
   remarks?: string;
   created_at: string;
   updated_at: string;
@@ -26,10 +26,11 @@ interface LabTest {
 
 interface Receipt {
   id: string;
-  tracking_number: string;
-  consigner_name: string;
+  tracking_number?: string;
+  receiver_name: string;
   branch: string;
-  total_amount: number;
+  company: string;
+  awb_no?: string;
 }
 
 const LabTestDetail: React.FC = () => {
@@ -47,13 +48,13 @@ const LabTestDetail: React.FC = () => {
       'QUEUED': 'bg-gray-100 text-gray-800',
       'IN_PROGRESS': 'bg-blue-100 text-blue-800', 
       'COMPLETED': 'bg-green-100 text-green-800',
-      'CANCELLED': 'bg-red-100 text-red-800',
+      'FAILED': 'bg-red-100 text-red-800',
+      'NEEDS_RETEST': 'bg-orange-100 text-orange-800',
       'ON_HOLD': 'bg-yellow-100 text-yellow-800',
-      'PENDING': 'bg-gray-100 text-gray-800',
+      'NOT_STARTED': 'bg-gray-100 text-gray-800',
       'DRAFT': 'bg-yellow-100 text-yellow-800',
-      'REVIEWED': 'bg-blue-100 text-blue-800',
-      'FINALIZED': 'bg-green-100 text-green-800',
-      'SENT': 'bg-green-100 text-green-800'
+      'READY': 'bg-blue-100 text-blue-800',
+      'SIGNED_OFF': 'bg-green-100 text-green-800'
     };
     return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
   };
@@ -223,7 +224,8 @@ const LabTestDetail: React.FC = () => {
                 <option value="QUEUED">Queued</option>
                 <option value="IN_PROGRESS">In Progress</option>
                 <option value="COMPLETED">Completed</option>
-                <option value="CANCELLED">Cancelled</option>
+                <option value="FAILED">Failed</option>
+                <option value="NEEDS_RETEST">Needs Retest</option>
                 <option value="ON_HOLD">On Hold</option>
               </select>
             </div>
@@ -236,11 +238,10 @@ const LabTestDetail: React.FC = () => {
                 disabled={updating}
                 className={`px-3 py-2 rounded-md border-0 text-sm font-medium ${getStatusColor(labTest.lab_report_status)} disabled:opacity-50`}
               >
-                <option value="PENDING">Pending</option>
+                <option value="NOT_STARTED">Not Started</option>
                 <option value="DRAFT">Draft</option>
-                <option value="REVIEWED">Reviewed</option>
-                <option value="FINALIZED">Finalized</option>
-                <option value="SENT">Sent</option>
+                <option value="READY">Ready</option>
+                <option value="SIGNED_OFF">Signed Off</option>
               </select>
             </div>
             
@@ -268,8 +269,8 @@ const LabTestDetail: React.FC = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-500">Consigner Name</label>
-                <p className="text-gray-900">{receipt.consigner_name}</p>
+                <label className="block text-sm font-medium text-gray-500">Receiver Name</label>
+                <p className="text-gray-900">{receipt.receiver_name}</p>
               </div>
               
               <div>
@@ -278,9 +279,16 @@ const LabTestDetail: React.FC = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-gray-500">Total Amount</label>
-                <p className="text-gray-900">${receipt.total_amount.toFixed(2)}</p>
+                <label className="block text-sm font-medium text-gray-500">Company</label>
+                <p className="text-gray-900">{receipt.company}</p>
               </div>
+              
+              {receipt.awb_no && (
+                <div>
+                  <label className="block text-sm font-medium text-gray-500">AWB Number</label>
+                  <p className="text-gray-900">{receipt.awb_no}</p>
+                </div>
+              )}
               
               <button
                 onClick={() => navigate(`/receipts/${receipt.id}`)}

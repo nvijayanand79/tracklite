@@ -20,13 +20,15 @@ from app.models.report import Report, FinalStatus, CommunicationStatus, Communic
 from app.models.invoice import Invoice, InvoiceStatus
 from app.models.owner import RetestRequest, OwnerPreference
 from app.config import settings
+from app.db import DATABASE_URL
 
 async def init_demo_data():
     """Initialize demo data for TraceLite"""
     
     # Create database engine
+    # Use the same DATABASE_URL as the API to ensure demo data is visible
     engine = create_async_engine(
-        "sqlite+aiosqlite:///./data/tracklite.db",
+        DATABASE_URL,
         echo=True
     )
     
@@ -61,7 +63,7 @@ async def init_demo_data():
         receipts_data = [
             {
                 "receiver_name": "Acme Corp Representative",
-                "contact_number": "+1-555-0101",
+                "contact_number": "+1-555-123-0101",
                 "branch": "Main Lab",
                 "company": "Acme Corp",
                 "count_boxes": 2,
@@ -72,7 +74,7 @@ async def init_demo_data():
             },
             {
                 "receiver_name": "TechStart Lab Manager", 
-                "contact_number": "+1-555-0102",
+                "contact_number": "+1-555-123-0102",
                 "branch": "Research Lab",
                 "company": "TechStart Inc",
                 "count_boxes": 3,
@@ -83,7 +85,7 @@ async def init_demo_data():
             },
             {
                 "receiver_name": "GreenEnergy Coordinator",
-                "contact_number": "+1-555-0103",
+                "contact_number": "+1-555-123-0103",
                 "branch": "Environmental Lab",
                 "company": "GreenEnergy Solutions",
                 "count_boxes": 1,

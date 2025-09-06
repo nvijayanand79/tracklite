@@ -178,6 +178,8 @@ const OwnerTrack: React.FC = () => {
     } catch (error: any) {
       console.error('Failed to load documents:', error);
       console.error('Error details:', error.response?.data);
+      // Set empty documents on error to ensure UI shows appropriate message
+      setDocuments({ reports: [], invoices: [] });
     }
   };
 
@@ -282,37 +284,6 @@ const OwnerTrack: React.FC = () => {
       <NavigationBar />
       <div className="max-w-6xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Owner Portal</h1>
-
-      {/* Debug Section */}
-      <div className="mb-6 flex justify-between items-center bg-gray-100 p-4 rounded">
-        <div className="text-sm text-gray-600">
-          {isAuthenticated ? (
-            <span className="text-green-600">✓ Logged in as owner</span>
-          ) : (
-            <span>Public access (login for full features)</span>
-          )}
-        </div>
-        <div className="space-x-2">
-          <button
-            onClick={() => {
-              console.log('localStorage tokens:', {
-                ownerToken: localStorage.getItem('ownerToken') ? 'EXISTS' : 'NONE',
-                authToken: localStorage.getItem('auth_token') ? 'EXISTS' : 'NONE'
-              });
-              console.log('Current URL:', window.location.pathname);
-            }}
-            className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded"
-          >
-            Debug Tokens
-          </button>
-          <button
-            onClick={clearAllTokens}
-            className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded"
-          >
-            Clear All Tokens
-          </button>
-        </div>
-      </div>
 
       {/* Tab Navigation */}
       <div className="border-b border-gray-200 mb-6">

@@ -65,7 +65,7 @@ async def list_reports(
 
 @router.get("/{report_id}", response_model=ReportRead)
 async def get_report(
-    report_id: uuid.UUID,
+    report_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
@@ -84,9 +84,14 @@ async def get_report(
     return ReportRead.model_validate(report)
 
 
+@router.options("/{report_id}")
+async def report_options(report_id: str):
+    """Handle preflight OPTIONS request for report operations"""
+    return {"message": "OK"}
+
 @router.patch("/{report_id}", response_model=ReportRead)
 async def update_report(
-    report_id: uuid.UUID,
+    report_id: str,
     report_update: ReportUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user)
@@ -113,7 +118,7 @@ async def update_report(
 
 @router.post("/{report_id}/approve", response_model=ReportRead)
 async def approve_report(
-    report_id: uuid.UUID,
+    report_id: str,
     approval: ReportApprove,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user)

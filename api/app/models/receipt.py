@@ -80,6 +80,7 @@ class Receipt(Base):
             "receiving_mode": self.receiving_mode.value,
             "forward_to_chennai": self.forward_to_central,  # Map to frontend field name
             "awb_no": self.courier_awb,  # Map to frontend field name
+            "tracking_number": self.courier_awb,  # Backwards-compatible alias expected by UI
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None
         }

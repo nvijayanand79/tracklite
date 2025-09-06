@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import NavigationBar from '../components/NavigationBar'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { api } from '../services/api'
 
 // Form validation schema
@@ -39,12 +39,14 @@ type ReceiptFormData = z.infer<typeof receiptSchema>
 
 export default function ReceiptsForm() {
   const navigate = useNavigate()
+  const { id } = useParams<{ id?: string }>()
   const [serverError, setServerError] = useState<string | null>(null)
   
   const {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<ReceiptFormData>({
     resolver: zodResolver(receiptSchema),
@@ -68,32 +70,83 @@ export default function ReceiptsForm() {
   const onSubmit = async (data: ReceiptFormData) => {
     try {
       setServerError(null)
-      await api.post('/receipts', data)
+      console.log('Submitting form data:', data)
+      console.log('Edit mode:', !!id)
+      
+      if (id) {
+        console.log('Making PATCH request to:', `/receipts/${id}`)
+        const response = await api.patch(`/receipts/${id}`, data)
+        console.log('PATCH response:', response.data)
+      } else {
+        console.log('Making POST request to: /receipts')
+        const response = await api.post('/receipts', data)
+        console.log('POST response:', response.data)
+      }
       // Redirect to receipts list on success
       navigate('/receipts')
     } catch (error: any) {
-      console.error('Receipt creation error:', error)
-      if (error.response?.status === 400) {
-        setServerError(error.response.data.detail || 'Validation error')
+      console.error('Receipt operation error:', error)
+      console.error('Response data:', error.response?.data)
+      console.error('Response status:', error.response?.status)
+      
+      if (error.response?.status === 400 || error.response?.status === 422) {
+        const detail = error.response.data.detail
+        if (Array.isArray(detail)) {
+          // Validation errors from Pydantic
+          const messages = detail.map((err: any) => `${err.loc.join('.')}: ${err.msg}`).join(', ')
+          setServerError(`Validation error: ${messages}`)
+        } else {
+          setServerError(detail || 'Validation error')
+        }
       } else if (error.response?.status === 401) {
-        setServerError('You must be logged in to create receipts')
+        setServerError('You must be logged in to perform this action')
+      } else if (error.response?.status === 404) {
+        setServerError('Receipt not found')
       } else {
-        setServerError('Failed to create receipt. Please try again.')
+        setServerError(`Failed to ${id ? 'update' : 'create'} receipt. Please try again. Error: ${error.message}`)
       }
     }
   }
+
+  // If editing, fetch existing receipt and populate form
+  useEffect(() => {
+    if (!id) return
+
+    const load = async () => {
+      try {
+        const res = await api.get(`/receipts/${id}`)
+        const r = res.data
+
+        // Populate form values
+        setValue('receiver_name', r.receiver_name)
+        setValue('contact_number', r.contact_number)
+        setValue('date', r.date)
+        setValue('branch', r.branch)
+        setValue('company', r.company)
+        setValue('count_of_boxes', r.count_of_boxes)
+        setValue('receiving_mode', r.receiving_mode)
+        setValue('forward_to_chennai', r.forward_to_chennai)
+        setValue('awb_no', r.awb_no ?? '')
+      } catch (e) {
+        console.error('Failed to load receipt for edit', e)
+        setServerError('Failed to load receipt for edit')
+      }
+    }
+
+    load()
+  }, [id])
 
   return (
     <>
       <NavigationBar />
       <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto">
-          <div className="mb-8">
-            <h2 className="text-3xl font-extrabold text-gray-900">New Receipt</h2>
-            <p className="mt-2 text-sm text-gray-600">
-              Create a new receipt for package tracking
-            </p>
-          </div>
+                  <div className="mb-8">
+                    <h2 className="text-3xl font-extrabold text-gray-900">{id ? 'Edit Receipt' : 'New Receipt'}</h2>
+                    <p className="mt-2 text-sm text-gray-600">
+                      {id ? 'Update receipt details' : 'Create a new receipt for package tracking'}
+                    </p>
+                  </div>
           <form onSubmit={handleSubmit(onSubmit)} className="bg-white shadow rounded-lg p-6 space-y-6">
             {/* Server Error */}
             {serverError && (
@@ -281,10 +334,10 @@ export default function ReceiptsForm() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Creating...
+                  {id ? 'Updating...' : 'Creating...'}
                 </span>
               ) : (
-                'Create Receipt'
+                id ? 'Update Receipt' : 'Create Receipt'
               )}
             </button>
           </div>

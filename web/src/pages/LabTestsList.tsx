@@ -9,8 +9,8 @@ interface LabTest {
   receipt_id: string;
   lab_doc_no: string;
   lab_person: string;
-  test_status: 'QUEUED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED' | 'ON_HOLD';
-  lab_report_status: 'PENDING' | 'DRAFT' | 'REVIEWED' | 'FINALIZED' | 'SENT';
+  test_status: 'QUEUED' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED' | 'NEEDS_RETEST' | 'ON_HOLD';
+  lab_report_status: 'NOT_STARTED' | 'DRAFT' | 'READY' | 'SIGNED_OFF';
   remarks?: string;
   created_at: string;
   updated_at: string;
@@ -18,9 +18,11 @@ interface LabTest {
 
 interface Receipt {
   id: string;
-  tracking_number: string;
-  consigner_name: string;
+  tracking_number?: string;
+  receiver_name: string;
   branch: string;
+  company: string;
+  awb_no?: string;
 }
 
 const LabTestsList: React.FC = () => {
@@ -37,13 +39,13 @@ const LabTestsList: React.FC = () => {
       'QUEUED': 'bg-gray-100 text-gray-800',
       'IN_PROGRESS': 'bg-blue-100 text-blue-800', 
       'COMPLETED': 'bg-green-100 text-green-800',
-      'CANCELLED': 'bg-red-100 text-red-800',
+      'FAILED': 'bg-red-100 text-red-800',
+      'NEEDS_RETEST': 'bg-orange-100 text-orange-800',
       'ON_HOLD': 'bg-yellow-100 text-yellow-800',
-      'PENDING': 'bg-gray-100 text-gray-800',
+      'NOT_STARTED': 'bg-gray-100 text-gray-800',
       'DRAFT': 'bg-yellow-100 text-yellow-800',
-      'REVIEWED': 'bg-blue-100 text-blue-800',
-      'FINALIZED': 'bg-green-100 text-green-800',
-      'SENT': 'bg-green-100 text-green-800'
+      'READY': 'bg-blue-100 text-blue-800',
+      'SIGNED_OFF': 'bg-green-100 text-green-800'
     };
     return colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800';
   };
@@ -156,7 +158,8 @@ const LabTestsList: React.FC = () => {
           <option value="QUEUED">Queued</option>
           <option value="IN_PROGRESS">In Progress</option>
           <option value="COMPLETED">Completed</option>
-          <option value="CANCELLED">Cancelled</option>
+          <option value="FAILED">Failed</option>
+          <option value="NEEDS_RETEST">Needs Retest</option>
           <option value="ON_HOLD">On Hold</option>
         </select>
       </div>
@@ -211,8 +214,8 @@ const LabTestsList: React.FC = () => {
                         <div className="text-sm text-gray-900">
                           {receipt ? (
                             <div>
-                              <div className="font-medium">{receipt.tracking_number}</div>
-                              <div className="text-gray-500">{receipt.consigner_name}</div>
+                              <div className="font-medium">{receipt.tracking_number || 'No tracking'}</div>
+                              <div className="text-gray-500">{receipt.receiver_name}</div>
                               <div className="text-gray-500 text-xs">{receipt.branch}</div>
                             </div>
                           ) : (
@@ -232,7 +235,8 @@ const LabTestsList: React.FC = () => {
                           <option value="QUEUED">Queued</option>
                           <option value="IN_PROGRESS">In Progress</option>
                           <option value="COMPLETED">Completed</option>
-                          <option value="CANCELLED">Cancelled</option>
+                          <option value="FAILED">Failed</option>
+                          <option value="NEEDS_RETEST">Needs Retest</option>
                           <option value="ON_HOLD">On Hold</option>
                         </select>
                       </td>
@@ -242,11 +246,10 @@ const LabTestsList: React.FC = () => {
                           onChange={(e) => handleUpdateStatus(labTest.id, e.target.value, 'lab_report_status')}
                           className={`text-xs px-2 py-1 rounded-full border-0 ${getStatusColor(labTest.lab_report_status)}`}
                         >
-                          <option value="PENDING">Pending</option>
+                          <option value="NOT_STARTED">Not Started</option>
                           <option value="DRAFT">Draft</option>
-                          <option value="REVIEWED">Reviewed</option>
-                          <option value="FINALIZED">Finalized</option>
-                          <option value="SENT">Sent</option>
+                          <option value="READY">Ready</option>
+                          <option value="SIGNED_OFF">Signed Off</option>
                         </select>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

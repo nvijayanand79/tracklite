@@ -140,6 +140,11 @@ async def get_lab_test(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
 
+@router.options("/{labtest_id}")
+async def labtest_options(labtest_id: str):
+    """Handle preflight OPTIONS request for labtest operations"""
+    return {"message": "OK"}
+
 @router.patch("/{labtest_id}", response_model=LabTestRead)
 async def update_lab_test(
     labtest_id: str,

@@ -6,7 +6,7 @@ import uuid
 
 from ..db import get_db
 from ..models.receipt import Receipt, ReceivingModeEnum
-from ..schemas.receipt import CreateReceipt, ReceiptRead, ReceiptListResponse
+from ..schemas.receipt import CreateReceipt, ReceiptRead, ReceiptListResponse, UpdateReceipt
 from .auth import get_admin_user
 
 router = APIRouter()
@@ -127,6 +127,50 @@ async def delete_receipt(receipt_id: str, db: AsyncSession = Depends(get_db)):
         
         return {"message": "Receipt deleted successfully", "id": receipt_id}
         
+    except HTTPException:
+        raise
+    except Exception as e:
+        await db.rollback()
+        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+
+
+@router.options("/receipts/{receipt_id}")
+async def receipts_options(receipt_id: str):
+    """Handle preflight OPTIONS request for receipt operations"""
+    return {"message": "OK"}
+
+
+@router.patch("/receipts/{receipt_id}", response_model=ReceiptRead)
+async def update_receipt(receipt_id: str, payload: UpdateReceipt, db: AsyncSession = Depends(get_db), current_user: Dict[str, Any] = Depends(get_admin_user)):
+    """Update a receipt partially"""
+    try:
+        result = await db.execute(select(Receipt).where(Receipt.id == receipt_id))
+        receipt = result.scalar_one_or_none()
+        if not receipt:
+            raise HTTPException(status_code=404, detail="Receipt not found")
+
+        data = payload.model_dump(exclude_none=True)
+        for k, v in data.items():
+            # Map frontend names to model fields
+            if k == 'forward_to_chennai':
+                setattr(receipt, 'forward_to_central', v)
+            elif k == 'awb_no':
+                setattr(receipt, 'courier_awb', v)
+            elif k == 'date':
+                setattr(receipt, 'receipt_date', v)
+            elif k == 'count_of_boxes':
+                setattr(receipt, 'count_boxes', v)
+            elif k == 'receiving_mode':
+                # Convert string to enum
+                mode_enum = ReceivingModeEnum.COURIER if v == "COURIER" else ReceivingModeEnum.PERSON
+                setattr(receipt, 'receiving_mode', mode_enum)
+            else:
+                setattr(receipt, k, v)
+
+        await db.commit()
+        await db.refresh(receipt)
+
+        return ReceiptRead(**receipt.to_dict())
     except HTTPException:
         raise
     except Exception as e:

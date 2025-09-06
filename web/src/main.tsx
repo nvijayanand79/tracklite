@@ -42,6 +42,14 @@ const router = createBrowserRouter([
     ) 
   },
   { 
+    path: '/receipts/:id/edit', 
+    element: (
+      <ProtectedRoute>
+        <ReceiptsForm />
+      </ProtectedRoute>
+    ) 
+  },
+  { 
     path: '/receipts/:id', 
     element: (
       <ProtectedRoute>

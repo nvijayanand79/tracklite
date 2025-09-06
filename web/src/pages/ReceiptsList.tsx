@@ -15,7 +15,7 @@ interface Receipt {
   receiving_mode: string;
   forward_to_chennai: boolean;
   awb_no?: string;
-  tracking_number: string;
+  tracking_number?: string;
   created_at: string;
   updated_at: string;
 }
@@ -148,7 +148,7 @@ const ReceiptsList: React.FC = () => {
                   <tr key={receipt.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm font-medium text-gray-900">
-                        {receipt.tracking_number}
+                        {receipt.tracking_number || receipt.awb_no || '—'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">

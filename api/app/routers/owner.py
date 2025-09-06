@@ -43,16 +43,27 @@ TIMELINE_STEPS = [
 ]
 
 
+@router.get("/track/{path_query}", response_model=TrackingResult)
 @router.get("/track", response_model=TrackingResult)
 async def track_shipment(
-    query: str = Query(..., description="AWB, Receipt ID, Report ID, or Invoice ID"),
+    path_query: Optional[str] = None,
+    query: Optional[str] = Query(None, description="AWB, Receipt ID, Report ID, or Invoice ID"),
     db: AsyncSession = Depends(get_db)
 ):
-    """Public tracking endpoint with rate limiting"""
+    """Public tracking endpoint with rate limiting
+
+    Supports both query parameter and path parameter access:
+    - /owner/track?query=<id_or_awb>
+    - /owner/track/<id_or_awb>
+    """
     
     # Basic rate limiting check (in production, use Redis)
     # For development, we'll allow unlimited requests
     
+    # Prefer path parameter if provided (supports /owner/track/<id>)
+    if path_query:
+        query = path_query
+
     tracking_result = TrackingResult(found=False)
     
     # Try to find the item by different identifiers
@@ -81,6 +92,17 @@ async def track_shipment(
             select(LabTest)
             .options(selectinload(LabTest.receipt))
             .where(LabTest.id == query)
+        )
+        labtest = labtest_result.scalar_one_or_none()
+        if labtest:
+            receipt = labtest.receipt
+
+    # Also allow searching by lab document number (e.g. LAB-2024-001)
+    if not receipt:
+        labtest_result = await db.execute(
+            select(LabTest)
+            .options(selectinload(LabTest.receipt))
+            .where(LabTest.lab_doc_no == query)
         )
         labtest = labtest_result.scalar_one_or_none()
         if labtest:
@@ -377,7 +399,7 @@ async def get_status(
 
 @router.get("/reports/{report_id}/download")
 async def download_report(
-    report_id: uuid.UUID,
+    report_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_owner_user)
 ):
@@ -446,7 +468,7 @@ async def download_report(
 
 @router.get("/invoices/{invoice_id}/download")
 async def download_invoice(
-    invoice_id: uuid.UUID,
+    invoice_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_owner_user)
 ):

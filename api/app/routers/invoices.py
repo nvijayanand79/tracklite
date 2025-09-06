@@ -149,7 +149,7 @@ async def get_approved_reports(
 
 @router.get("/{invoice_id}", response_model=InvoiceRead)
 async def get_invoice(
-    invoice_id: uuid.UUID,
+    invoice_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
@@ -168,9 +168,14 @@ async def get_invoice(
     return InvoiceRead.model_validate(invoice)
 
 
+@router.options("/{invoice_id}")
+async def invoice_patch_options(invoice_id: str):
+    """Handle OPTIONS request for PATCH endpoint to satisfy CORS preflight"""
+    return {"message": "OK"}
+
 @router.patch("/{invoice_id}", response_model=InvoiceRead)
 async def update_invoice(
-    invoice_id: uuid.UUID,
+    invoice_id: str,
     invoice_update: InvoiceUpdate,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user)

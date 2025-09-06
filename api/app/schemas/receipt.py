@@ -58,6 +58,39 @@ class CreateReceipt(BaseModel):
 
         return self
 
+
+class UpdateReceipt(BaseModel):
+    receiver_name: Optional[str] = None
+    contact_number: Optional[str] = None
+    date: Optional[str] = None
+    branch: Optional[str] = None
+    company: Optional[str] = None
+    count_of_boxes: Optional[int] = None
+    receiving_mode: Optional[ReceivingMode] = None
+    forward_to_chennai: Optional[bool] = None
+    awb_no: Optional[str] = None
+
+    @field_validator('contact_number')
+    @classmethod
+    def validate_contact_number(cls, v):
+        if v is None:
+            return v
+        digits_only = ''.join(filter(str.isdigit, v))
+        if len(digits_only) < 10:
+            raise ValueError('Contact number must have at least 10 digits')
+        return v
+
+    @field_validator('date')
+    @classmethod
+    def validate_date(cls, v):
+        if v is None:
+            return v
+        try:
+            datetime.strptime(v, '%Y-%m-%d')
+            return v
+        except ValueError:
+            raise ValueError('Date must be in YYYY-MM-DD format')
+
 class ReceiptRead(BaseModel):
     id: str = Field(..., description="Unique receipt ID")
     receiver_name: str
@@ -69,6 +102,7 @@ class ReceiptRead(BaseModel):
     receiving_mode: str
     forward_to_chennai: bool
     awb_no: Optional[str]
+    tracking_number: Optional[str] = None
     created_at: str
     updated_at: Optional[str] = None
 

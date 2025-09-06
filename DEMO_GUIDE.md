@@ -101,9 +101,10 @@ The system comes pre-populated with:
   - `POST /auth/owner/otp-verify` (verify OTP)
 
 ### Sample Tracking IDs
-- `RCP-001` / `LAB-2024-001`
-- `RCP-002` / `LAB-2024-002`
-- `RCP-003` / `LAB-2024-003`
+- `LAB-2024-001` (Lab Document Number)
+- `LAB-2024-002` (Lab Document Number)
+- `LAB-2024-003` (Lab Document Number)
+- `AWB123456789` (Courier AWB Number)
 
 ---
 
@@ -118,7 +119,7 @@ The system comes pre-populated with:
 
 2. **Show the Owner Portal:**
    - Navigate to Owner Track page
-   - Enter tracking ID: `RCP-001`
+   - Enter tracking ID: `LAB-2024-001`
    - Show real-time status updates
 
 3. **Demonstrate API capabilities:**
