@@ -6,7 +6,7 @@ import asyncio
 import uuid
 from datetime import datetime, timedelta
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from sqlalchemy import select
+from sqlalchemy import select, text
 import os
 import sys
 
@@ -42,9 +42,18 @@ async def init_demo_data():
         result = await session.execute(select(Receipt))
         existing_receipts = result.scalars().all()
         
+        # Force recreation for testing
         if existing_receipts:
-            print("Demo data already exists, skipping initialization...")
-            return
+            print("Demo data exists, removing existing data...")
+            # Delete all existing data
+            await session.execute(text("DELETE FROM retest_requests"))
+            await session.execute(text("DELETE FROM owner_preferences"))
+            await session.execute(text("DELETE FROM invoices"))
+            await session.execute(text("DELETE FROM reports"))
+            await session.execute(text("DELETE FROM lab_transfers"))
+            await session.execute(text("DELETE FROM labtests"))
+            await session.execute(text("DELETE FROM receipts"))
+            await session.commit()
         
         print("Initializing demo data...")
         
