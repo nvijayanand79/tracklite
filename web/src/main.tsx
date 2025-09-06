@@ -4,7 +4,6 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './index.css'
 import App from './App'
-import OwnerTrack from './pages/OwnerTrack'
 import Login from './pages/Login'
 import ReceiptsForm from './pages/ReceiptsForm'
 import ReceiptsList from './pages/ReceiptsList'
@@ -23,8 +22,6 @@ import ProtectedRoute from './components/ProtectedRoute'
 
 const router = createBrowserRouter([
   { path: '/', element: <App /> },
-  { path: '/owner/track', element: <OwnerTrack /> },
-  { path: '/owner-track', element: <OwnerTrack /> },
   { path: '/login', element: <Login /> },
   { 
     path: '/receipts', 

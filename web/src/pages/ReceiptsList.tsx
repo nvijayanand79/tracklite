@@ -61,7 +61,7 @@ const ReceiptsList: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex">
+      <div className="min-h-screen bg-gray-50 flex">
         {/* Sidebar Navigation */}
         <div className="fixed left-0 top-0 h-full w-16 bg-white border-r border-gray-200 flex flex-col z-50">
           {/* Navigation Content */}
@@ -74,7 +74,7 @@ const ReceiptsList: React.FC = () => {
               title="Dashboard"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v0" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
               </svg>
             </button>
 
@@ -164,7 +164,7 @@ const ReceiptsList: React.FC = () => {
   }
 
   return (
-    <div className="flex">
+    <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar Navigation */}
       <div className="fixed left-0 top-0 h-full w-16 bg-white border-r border-gray-200 flex flex-col z-50">
         {/* Navigation Content */}
@@ -177,7 +177,7 @@ const ReceiptsList: React.FC = () => {
             title="Dashboard"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2 2v0" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
           </button>
 
@@ -291,8 +291,8 @@ const ReceiptsList: React.FC = () => {
                   <p className="text-xs text-gray-600">Total</p>
                   <p className="text-xl font-semibold text-gray-900">{receipts.length}</p>
                 </div>
-                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
@@ -305,8 +305,8 @@ const ReceiptsList: React.FC = () => {
                   <p className="text-xs text-gray-600">Boxes</p>
                   <p className="text-xl font-semibold text-gray-900">{receipts.reduce((sum, receipt) => sum + receipt.count_of_boxes, 0)}</p>
                 </div>
-                <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                   </svg>
                 </div>

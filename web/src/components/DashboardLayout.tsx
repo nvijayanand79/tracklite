@@ -84,11 +84,11 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       onClick: () => navigate('/lab-tests')
     },
     { 
-      label: 'Active Owners', 
+      label: 'Active Records', 
       value: loading ? '...' : stats.activeOwners.toString(), 
       change: '+5', 
       icon: '👥',
-      onClick: () => navigate('/owner-track')
+      onClick: () => navigate('/reports')
     },
     { 
       label: 'This Month', 
@@ -112,14 +112,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
       description: 'Process lab test results',
       icon: '🧪',
       path: '/lab-tests/new',
-      color: 'green'
-    },
-    {
-      title: 'Owner Search',
-      description: 'Find owner information',
-      icon: '🔍',
-      path: '/owner-track',
-      color: 'purple'
+      color: 'yellow'
     },
     {
       title: 'Generate Report',
@@ -180,15 +173,15 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
           </button>
 
           <button 
-            onClick={() => navigate('/owner-track')}
+            onClick={() => navigate('/invoices')}
             className="w-12 h-12 flex items-center justify-center text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors group relative"
-            title="Owner Portal"
+            title="Invoices"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
             </svg>
             <div className="absolute left-16 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap">
-              Owner Portal
+              Invoices
             </div>
           </button>
 
@@ -355,6 +348,7 @@ const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
                 className={`p-3 bg-gradient-to-r ${
                   action.color === 'blue' ? 'from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 text-blue-700' :
                   action.color === 'green' ? 'from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 text-green-700' :
+                  action.color === 'yellow' ? 'from-yellow-50 to-yellow-100 hover:from-yellow-100 hover:to-yellow-200 text-yellow-700' :
                   action.color === 'purple' ? 'from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 text-purple-700' :
                   'from-orange-50 to-orange-100 hover:from-orange-100 hover:to-orange-200 text-orange-700'
                 } rounded-lg border border-gray-200 transition-all duration-200 text-left group`}
