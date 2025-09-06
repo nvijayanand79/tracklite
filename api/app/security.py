@@ -40,9 +40,19 @@ def create_access_token(data: Dict[str, Any], expires_delta: Optional[timedelta]
 def verify_token(token: str) -> Optional[Dict[str, Any]]:
     """Verify and decode a JWT token"""
     try:
+        print(f"🔍 Attempting to decode token: {token[:20]}...")
+        print(f"🔍 Using SECRET_KEY: {SECRET_KEY[:10]}...")
+        print(f"🔍 Using ALGORITHM: {ALGORITHM}")
+        
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        print(f"✅ Token decoded successfully: {payload}")
         return payload
-    except JWTError:
+    except JWTError as e:
+        print(f"❌ JWT Error: {e}")
+        print(f"❌ Token that failed: {token}")
+        return None
+    except Exception as e:
+        print(f"❌ Unexpected error in token verification: {e}")
         return None
 
 def generate_otp_code() -> str:

@@ -25,10 +25,30 @@ app.include_router(invoices.router)
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize database on startup"""
+    """Initialize database and demo data on startup"""
+    import logging
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
+    
     # Import models to ensure they're registered with SQLAlchemy
     from .models import receipt, labtest, report, invoice  # noqa
     await init_db()
+    
+    # Initialize demo data if needed
+    try:
+        logger.info("🚀 Initializing demo data...")
+        import sys
+        import os
+        sys.path.append(os.path.dirname(os.path.dirname(__file__)))
+        
+        # Import and run startup initialization
+        from startup_init import check_and_initialize
+        await check_and_initialize()
+        logger.info("✅ Demo data initialization completed")
+    except Exception as e:
+        logger.error(f"⚠️  Demo data initialization failed: {e}")
+        # Continue startup even if demo data fails
+        pass
 
 @app.on_event("shutdown")
 async def shutdown_event():

@@ -1,11 +1,9 @@
-from sqlalchemy import Column, String, Integer, Boolean, DateTime, Enum
+from sqlalchemy import Column, String, Integer, Boolean, Enum
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func
-import uuid
 import enum
 from datetime import datetime
 
-from ..db import Base
+from .base import BaseModel
 
 
 class ReceivingModeEnum(enum.Enum):
@@ -13,16 +11,8 @@ class ReceivingModeEnum(enum.Enum):
     COURIER = "COURIER"
 
 
-class Receipt(Base):
+class Receipt(BaseModel):
     __tablename__ = "receipts"
-
-    # Primary key
-    id = Column(
-        String(36), 
-        primary_key=True, 
-        default=lambda: str(uuid.uuid4()),
-        index=True
-    )
     
     # Receipt details
     receiver_name = Column(String(255), nullable=False, index=True)
@@ -46,20 +36,6 @@ class Receipt(Base):
     
     # Receipt date (from form)
     receipt_date = Column(String(10), nullable=False)  # Store as string for consistency with frontend
-    
-    # Timestamps
-    created_at = Column(
-        DateTime(timezone=True), 
-        server_default=func.now(),
-        nullable=False,
-        index=True
-    )
-    updated_at = Column(
-        DateTime(timezone=True),
-        server_default=func.now(),
-        onupdate=func.now(),
-        nullable=False
-    )
 
     # Relationship to LabTest
     lab_tests = relationship("LabTest", back_populates="receipt", cascade="all, delete-orphan")
@@ -69,18 +45,16 @@ class Receipt(Base):
     
     def to_dict(self):
         """Convert model to dictionary for API responses"""
-        return {
-            "id": str(self.id),
-            "receiver_name": self.receiver_name,
-            "contact_number": self.contact_number,
+        base_dict = super().to_dict()
+        
+        # Add custom field mappings for frontend compatibility
+        base_dict.update({
             "date": self.receipt_date,
-            "branch": self.branch,
-            "company": self.company,
             "count_of_boxes": self.count_boxes,
             "receiving_mode": self.receiving_mode.value,
-            "forward_to_chennai": self.forward_to_central,  # Map to frontend field name
-            "awb_no": self.courier_awb,  # Map to frontend field name
-            "tracking_number": self.courier_awb,  # Backwards-compatible alias expected by UI
-            "created_at": self.created_at.isoformat() if self.created_at else None,
-            "updated_at": self.updated_at.isoformat() if self.updated_at else None
-        }
+            "forward_to_chennai": self.forward_to_central,
+            "awb_no": self.courier_awb,
+            "tracking_number": self.courier_awb,  # Backwards-compatible alias
+        })
+        
+        return base_dict

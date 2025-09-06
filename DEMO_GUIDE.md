@@ -1,16 +1,17 @@
-# TrackLite Demo Guide
+# TraceLite Demo Guide
 
-Welcome to the TrackLite demonstration! This guide explains all functionalities and how to test them during the demo.
+Welcome to the TraceLite demonstration! This guide explains all functionalities and how to test the enterprise-ready system with automated initialization and universal UUID compatibility.
 
 ## 🚀 Quick Start
 
 Simply run `start-demo.bat` - it will automatically:
 - Install all dependencies (Python packages, Node.js packages)
-- Create and seed the demo database
-- Launch both API and web app
-- Display access URLs
+- Initialize enterprise-grade UUID system for deployment compatibility
+- Create and seed fresh demo data with automated startup initialization
+- Launch both API and web app with CORS configured
+- Display access URLs and demo credentials
 
-**No manual setup required!**
+**No manual setup required! Enterprise-ready out of the box!**
 
 ---
 
@@ -24,87 +25,126 @@ After running `start-demo.bat`:
 
 ---
 
-## 🎯 Core Functionalities
+## ✨ New Enterprise Features
 
-### 1. Owner Tracking Portal
-- **What:** Allows business owners to track their samples through the lab process
-- **How to test:**
-  1. Navigate to the "Owner Track" page in the web app
-  2. Enter a sample tracking ID or receipt number
-  3. View real-time status updates
+### 🔧 **Universal UUID Compatibility**
+- **Demo:** All tracking IDs work seamlessly (both UUIDs and lab numbers like `LAB-2024-001`)
+- **Test:** Try tracking `LAB-2024-001` and `AWB123456789` - both work perfectly
+- **Benefit:** Resolves deployment issues across different machines and environments
 
-### 2. Receipt Management
-- **What:** Digital receipts for samples submitted to the lab
-- **How to test:**
-  1. Go to API docs: `/receipts` endpoints
-  2. Try `GET /receipts` to view all receipts
-  3. Use `POST /receipts` to create a new receipt
+### 🚀 **Automated Startup Initialization**  
+- **Demo:** Fresh demo data created automatically on every server startup
+- **Test:** Restart the API server - demo data is recreated automatically
+- **Benefit:** Consistent demo environment without manual data management
 
-### 3. Lab Test Management
-- **What:** Track laboratory tests and their progress
-- **How to test:**
-  1. Visit `/labtests` endpoints in API docs
-  2. View test status, results, and timelines
-  3. Update test progress through the API
-
-### 4. Report Generation
-- **What:** Automated report creation for completed tests
-- **How to test:**
-  1. Check `/reports` endpoints
-  2. Generate PDF reports for completed tests
-  3. View report history and download links
-
-### 5. Invoice Processing
-- **What:** Billing and payment tracking for lab services
-- **How to test:**
-  1. Explore `/invoices` endpoints
-  2. Create invoices tied to completed tests
-  3. Track payment status
+### 🌐 **Production-Ready Architecture**
+- **Demo:** CORS configured for cross-origin requests
+- **Test:** API works from different domains and development environments
+- **Benefit:** Ready for GitHub Codespaces, WSL, and production deployment
 
 ---
 
-## 🧪 Demo Data
+## 🎯 Core Functionalities
 
-The system comes pre-populated with:
+### 1. Owner Tracking Portal (Enhanced)
+- **What:** Real-time sample tracking with OTP authentication
+- **How to test:**
+  1. Navigate to the "Owner Track" page in the web app
+  2. **Try these tracking IDs:**
+     - `LAB-2024-001` (Completed with approved report)
+     - `LAB-2024-002` (Completed with approved report)
+     - `LAB-2024-003` (In Progress with draft report)
+     - `AWB123456789` (Courier tracking for TechStart Inc)
+  3. View real-time status updates with timeline
+  4. **Test Authentication:**
+     - Email: `contact@acme.com` or `lab@techstart.com`
+     - OTP: `123456` (demo mode)
 
-### Sample Customers
-- **Alice Demo** (alice@example.com)
-- **Bob Demo** (bob@example.com)  
-- **Charlie Demo** (charlie@example.com)
+### 2. Receipt Management (UUID Enhanced)
+- **What:** Digital receipts with enterprise UUID tracking
+- **How to test:**
+  1. Go to API docs: `/receipts` endpoints
+  2. Try `GET /receipts` to view all receipts
+  3. **View demo receipts:**
+     - Acme Corp (Main Lab, 2 boxes, Person delivery)
+     - TechStart Inc (Research Lab, 3 boxes, Courier AWB123456789)
+     - GreenEnergy Solutions (Environmental Lab, 1 box, Person delivery)
+  4. Use `POST /receipts` to create a new receipt with automatic UUID assignment
+
+### 3. Lab Test Management (Status Tracking)
+- **What:** Track laboratory tests with automated status progression
+- **How to test:**
+  1. Visit `/labtests` endpoints in API docs  
+  2. **View test progression:**
+     - `LAB-2024-001`: Dr. Smith → COMPLETED → SIGNED_OFF
+     - `LAB-2024-002`: Dr. Johnson → COMPLETED → SIGNED_OFF  
+     - `LAB-2024-003`: Dr. Williams → IN_PROGRESS → DRAFT
+  3. Update test progress through the API with enum validation
+  4. Test tracking endpoints with non-UUID lab numbers
+
+### 4. Report Generation (Approval Workflow)
+- **What:** Automated report creation with approval workflow and document management
+- **How to test:**
+  1. Check `/reports` endpoints in API docs
+  2. **View demo reports:**
+     - Report for `LAB-2024-001`: APPROVED by Dr. Admin → DELIVERED via EMAIL → Available for download
+     - Report for `LAB-2024-002`: APPROVED by Dr. Admin → DISPATCHED via COURIER → Available for download
+     - Report for `LAB-2024-003`: DRAFT status → PENDING communication → Not yet available
+  3. Test download functionality for approved reports
+  4. View communication status and delivery tracking
+
+### 5. Invoice Processing (Payment Tracking)
+- **What:** Automated billing and payment tracking with status management  
+- **How to test:**
+  1. Explore `/invoices` endpoints in API docs
+  2. **View demo invoices:**
+     - `INV-2025-0001` for LAB-2024-001: $250.00 → PAID (payment completed)
+     - `INV-2025-0002` for LAB-2024-002: $350.00 → SENT (awaiting payment)
+  3. Track payment status and invoice history
+  4. Test invoice creation tied to completed reports
+
+---
+
+## 🧪 Demo Data (Auto-Generated)
+
+The system automatically creates fresh demo data on startup with enterprise UUID handling:
+
+### Sample Companies & Receipts
+- **Acme Corp** - Main Lab, 2 boxes, Person delivery (contact@acme.com)
+- **TechStart Inc** - Research Lab, 3 boxes, Courier AWB123456789 (lab@techstart.com)  
+- **GreenEnergy Solutions** - Environmental Lab, 1 box, Person delivery
 
 ### Demo Login Credentials
 
-#### 🔐 Admin Login (Full System Access)
-- **Method:** Email + Password
-- **Email:** `admin@example.com`
-- **Password:** `admin123`
-- **Role:** Administrator
-- **Purpose:** Access admin panel, system management, all features
-- **API Endpoint:** `POST /auth/login`
-
-#### 📱 Owner Login (Limited Tracking Access)
-- **Method:** Email/Phone + OTP
-- **Demo Emails:** `contact@acme.com` or `lab@techstart.com`
-- **OTP Code:** `123456` (always generated for demo)
+#### 📱 Owner Portal Authentication (OTP-based)
+- **Primary Demo Email:** `contact@acme.com`
+- **Secondary Demo Email:** `lab@techstart.com`
+- **OTP Code:** `123456` (demo mode - always works)
 - **Role:** Owner/Customer
-- **Purpose:** Track sample status, view receipts
+- **Purpose:** Track sample status, view approved reports, download documents
 - **API Endpoints:**
   - `POST /auth/owner/email-otp-init` (request OTP)
   - `POST /auth/owner/email-otp-verify` (verify OTP)
 
-#### 📞 Phone OTP Login (Alternative)
-- **Method:** Phone + OTP
-- **Demo Phone:** Any phone number
+#### 📞 Phone OTP Alternative
+- **Method:** Phone + OTP  
+- **Demo Phone:** Any valid phone number format
 - **OTP Code:** Check console output after requesting
 - **API Endpoints:**
   - `POST /auth/owner/otp-init` (request OTP)
   - `POST /auth/owner/otp-verify` (verify OTP)
 
-### Sample Tracking IDs
-- `LAB-2024-001` (Lab Document Number)
-- `LAB-2024-002` (Lab Document Number)
-- `LAB-2024-003` (Lab Document Number)
-- `AWB123456789` (Courier AWB Number)
+### Sample Tracking IDs (Universal Compatibility)
+- **Lab Document Numbers:**
+  - `LAB-2024-001` → Acme Corp sample (COMPLETED, report approved, invoice paid)
+  - `LAB-2024-002` → TechStart Inc sample (COMPLETED, report approved, invoice sent)
+  - `LAB-2024-003` → GreenEnergy sample (IN_PROGRESS, draft report)
+- **Courier Tracking:**
+  - `AWB123456789` → TechStart Inc courier delivery tracking
+
+### Database Reset
+- **Automatic:** Fresh data created on every server startup
+- **Manual:** Run `cd api && python init_demo_data.py`
 
 ---
 

@@ -1,9 +1,9 @@
 import enum
 from datetime import datetime
-from sqlalchemy import Column, String, Boolean, DateTime, Enum, ForeignKey
+from sqlalchemy import Column, String, Boolean, Enum, ForeignKey
 from sqlalchemy.orm import relationship
-import uuid
-from ..db import Base
+from .base import BaseModel
+from ..utils.uuid_utils import StringUUID
 
 
 class FinalStatus(enum.Enum):
@@ -25,19 +25,16 @@ class CommunicationChannel(enum.Enum):
     EMAIL = "EMAIL"
 
 
-class Report(Base):
+class Report(BaseModel):
     __tablename__ = "reports"
 
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    labtest_id = Column(String(36), ForeignKey("labtests.id", ondelete="CASCADE"), nullable=False)
+    labtest_id = Column(StringUUID, ForeignKey("labtests.id", ondelete="CASCADE"), nullable=False)
     retesting_requested = Column(Boolean, default=False, nullable=False)
     final_status = Column(Enum(FinalStatus), default=FinalStatus.DRAFT, nullable=False)
     approved_by = Column(String, nullable=True)
     comm_status = Column(Enum(CommunicationStatus), default=CommunicationStatus.PENDING, nullable=False)
     comm_channel = Column(Enum(CommunicationChannel), default=CommunicationChannel.EMAIL, nullable=False)
     communicated_to_accounts = Column(Boolean, default=False, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
 
     # Relationships
     labtest = relationship("LabTest", back_populates="reports")
@@ -45,15 +42,11 @@ class Report(Base):
     retest_requests = relationship("RetestRequest", back_populates="report", cascade="all, delete-orphan")
 
     def to_dict(self):
-        return {
-            "id": str(self.id),
+        base_dict = super().to_dict()
+        base_dict.update({
             "labtest_id": str(self.labtest_id),
-            "retesting_requested": self.retesting_requested,
             "final_status": self.final_status.value if self.final_status else None,
-            "approved_by": self.approved_by,
             "comm_status": self.comm_status.value if self.comm_status else None,
             "comm_channel": self.comm_channel.value if self.comm_channel else None,
-            "communicated_to_accounts": self.communicated_to_accounts,
-            "created_at": self.created_at.isoformat() if self.created_at else None,
-            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
-        }
+        })
+        return base_dict
