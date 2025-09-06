@@ -7,7 +7,6 @@ Create Date: 2025-08-26 08:40:00.000000
 """
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import UUID
 
 
 # revision identifiers, used by Alembic.
@@ -21,8 +20,8 @@ def upgrade():
     # Create invoices table
     op.create_table(
         'invoices',
-        sa.Column('id', UUID(as_uuid=True), primary_key=True),
-        sa.Column('report_id', UUID(as_uuid=True), sa.ForeignKey('reports.id', ondelete='CASCADE'), nullable=False),
+        sa.Column('id', sa.String(36), primary_key=True),
+        sa.Column('report_id', sa.String(36), sa.ForeignKey('reports.id', ondelete='CASCADE'), nullable=False),
         sa.Column('invoice_no', sa.String(50), unique=True, nullable=False, index=True),
         sa.Column('status', sa.Enum('DRAFT', 'ISSUED', 'SENT', 'PAID', 'CANCELLED', name='invoicestatus'), nullable=False, default='DRAFT'),
         sa.Column('amount', sa.Numeric(10, 2), nullable=False),

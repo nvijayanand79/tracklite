@@ -7,7 +7,6 @@ Create Date: 2025-08-26
 """
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import UUID
 
 
 # revision identifiers
@@ -21,8 +20,8 @@ def upgrade():
     # Create retest_requests table
     op.create_table(
         'retest_requests',
-        sa.Column('id', UUID(as_uuid=True), nullable=False),
-        sa.Column('report_id', UUID(as_uuid=True), nullable=False),
+        sa.Column('id', sa.String(36), nullable=False),
+        sa.Column('report_id', sa.String(36), nullable=False),
         sa.Column('owner_email', sa.String(255), nullable=False),
         sa.Column('owner_phone', sa.String(20), nullable=True),
         sa.Column('remarks', sa.Text(), nullable=False),
@@ -37,7 +36,7 @@ def upgrade():
     # Create owner_preferences table
     op.create_table(
         'owner_preferences',
-        sa.Column('id', UUID(as_uuid=True), nullable=False),
+        sa.Column('id', sa.String(36), nullable=False),
         sa.Column('owner_email', sa.String(255), nullable=False),
         sa.Column('owner_phone', sa.String(20), nullable=True),
         sa.Column('email_notifications', sa.Boolean(), nullable=False),

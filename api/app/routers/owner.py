@@ -70,45 +70,33 @@ async def track_shipment(
     
     # Search by Receipt ID
     if not receipt:
-        try:
-            receipt_uuid = uuid.UUID(query)
-            result = await db.execute(
-                select(Receipt).where(Receipt.id == receipt_uuid)
-            )
-            receipt = result.scalar_one_or_none()
-        except ValueError:
-            pass
+        result = await db.execute(
+            select(Receipt).where(Receipt.id == query)
+        )
+        receipt = result.scalar_one_or_none()
     
     # Search by Lab Test ID
     if not receipt:
-        try:
-            labtest_uuid = uuid.UUID(query)
-            result = await db.execute(
-                select(LabTest)
-                .options(selectinload(LabTest.receipt))
-                .where(LabTest.id == labtest_uuid)
-            )
-            labtest = result.scalar_one_or_none()
-            if labtest:
-                receipt = labtest.receipt
-        except ValueError:
-            pass
+        labtest_result = await db.execute(
+            select(LabTest)
+            .options(selectinload(LabTest.receipt))
+            .where(LabTest.id == query)
+        )
+        labtest = labtest_result.scalar_one_or_none()
+        if labtest:
+            receipt = labtest.receipt
     
     # Search by Report ID
     if not receipt:
-        try:
-            report_uuid = uuid.UUID(query)
-            result = await db.execute(
-                select(Report)
-                .options(selectinload(Report.labtest).selectinload(LabTest.receipt))
-                .where(Report.id == report_uuid)
-            )
-            report = result.scalar_one_or_none()
-            if report:
-                labtest = report.labtest
-                receipt = labtest.receipt if labtest else None
-        except ValueError:
-            pass
+        report_result = await db.execute(
+            select(Report)
+            .options(selectinload(Report.labtest).selectinload(LabTest.receipt))
+            .where(Report.id == query)
+        )
+        report = report_result.scalar_one_or_none()
+        if report:
+            labtest = report.labtest
+            receipt = labtest.receipt if labtest else None
     
     # Search by Invoice ID or Invoice Number
     if not receipt:
@@ -120,18 +108,14 @@ async def track_shipment(
         )
         invoice = result.scalar_one_or_none()
         
-        # Try by invoice UUID
+        # Try by invoice ID
         if not invoice:
-            try:
-                invoice_uuid = uuid.UUID(query)
-                result = await db.execute(
-                    select(Invoice)
-                    .options(selectinload(Invoice.report).selectinload(Report.labtest).selectinload(LabTest.receipt))
-                    .where(Invoice.id == invoice_uuid)
-                )
-                invoice = result.scalar_one_or_none()
-            except ValueError:
-                pass
+            result = await db.execute(
+                select(Invoice)
+                .options(selectinload(Invoice.report).selectinload(Report.labtest).selectinload(LabTest.receipt))
+                .where(Invoice.id == query)
+            )
+            invoice = result.scalar_one_or_none()
         
         if invoice:
             report = invoice.report

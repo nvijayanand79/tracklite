@@ -7,7 +7,6 @@ Create Date: 2025-08-25 10:30:00.000000
 """
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import UUID
 
 # revision identifiers, used by Alembic.
 revision = '001_initial_receipt_table'
@@ -20,7 +19,7 @@ def upgrade() -> None:
     # Create receipts table
     op.create_table(
         'receipts',
-        sa.Column('id', UUID(as_uuid=True), primary_key=True),
+        sa.Column('id', sa.String(36), primary_key=True),
         sa.Column('receiver_name', sa.String(255), nullable=False),
         sa.Column('contact_number', sa.String(50), nullable=False),
         sa.Column('branch', sa.String(100), nullable=False),

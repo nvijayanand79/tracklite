@@ -7,7 +7,6 @@ Create Date: 2025-08-26
 """
 from alembic import op
 import sqlalchemy as sa
-from sqlalchemy.dialects.postgresql import UUID
 
 # revision identifiers, used by Alembic.
 revision = '002_add_reports_table'
@@ -20,8 +19,8 @@ def upgrade():
     # Create reports table
     op.create_table(
         'reports',
-        sa.Column('id', UUID(as_uuid=True), primary_key=True),
-        sa.Column('labtest_id', UUID(as_uuid=True), sa.ForeignKey('labtests.id', ondelete='CASCADE'), nullable=False),
+        sa.Column('id', sa.String(36), primary_key=True),
+        sa.Column('labtest_id', sa.String(36), sa.ForeignKey('labtests.id', ondelete='CASCADE'), nullable=False),
         sa.Column('retesting_requested', sa.Boolean(), nullable=False, default=False),
         sa.Column('final_status', sa.Enum('DRAFT', 'READY_FOR_APPROVAL', 'APPROVED', 'REJECTED', name='finalstatus'), nullable=False, default='DRAFT'),
         sa.Column('approved_by', sa.String(), nullable=True),

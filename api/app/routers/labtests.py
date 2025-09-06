@@ -32,9 +32,8 @@ async def create_lab_test(
     """
     try:
         # Verify receipt exists
-        receipt_uuid = uuid.UUID(lab_test.receipt_id)
         receipt_result = await db.execute(
-            select(Receipt).where(Receipt.id == receipt_uuid)
+            select(Receipt).where(Receipt.id == lab_test.receipt_id)
         )
         receipt = receipt_result.scalar_one_or_none()
         
@@ -59,8 +58,8 @@ async def create_lab_test(
 
         # Create lab test
         db_labtest = LabTest(
-            id=uuid.uuid4(),
-            receipt_id=receipt_uuid,
+            id=str(uuid.uuid4()),
+            receipt_id=lab_test.receipt_id,
             lab_doc_no=lab_test.lab_doc_no,
             lab_person=lab_test.lab_person,
             test_status=lab_test.test_status,
@@ -98,11 +97,7 @@ async def get_lab_tests(
             query = query.where(LabTest.test_status == status)
         
         if receipt_id:
-            try:
-                receipt_uuid = uuid.UUID(receipt_id)
-                query = query.where(LabTest.receipt_id == receipt_uuid)
-            except ValueError:
-                raise HTTPException(status_code=400, detail="Invalid receipt ID format")
+            query = query.where(LabTest.receipt_id == receipt_id)
         
         # Execute query
         result = await db.execute(query)
@@ -123,13 +118,11 @@ async def get_lab_test(
     Get a specific lab test with its transfer history.
     """
     try:
-        labtest_uuid = uuid.UUID(labtest_id)
-        
         # Get lab test with transfers
         result = await db.execute(
             select(LabTest)
             .options(selectinload(LabTest.transfers))
-            .where(LabTest.id == labtest_uuid)
+            .where(LabTest.id == labtest_id)
         )
         lab_test = result.scalar_one_or_none()
         
@@ -158,11 +151,9 @@ async def update_lab_test(
     Update lab test status, lab report status, or remarks.
     """
     try:
-        labtest_uuid = uuid.UUID(labtest_id)
-        
         # Get lab test
         result = await db.execute(
-            select(LabTest).where(LabTest.id == labtest_uuid)
+            select(LabTest).where(LabTest.id == labtest_id)
         )
         lab_test = result.scalar_one_or_none()
         
@@ -201,11 +192,9 @@ async def transfer_lab_test(
     Transfer lab test from one user to another with logging.
     """
     try:
-        labtest_uuid = uuid.UUID(labtest_id)
-        
         # Verify lab test exists
         result = await db.execute(
-            select(LabTest).where(LabTest.id == labtest_uuid)
+            select(LabTest).where(LabTest.id == labtest_id)
         )
         lab_test = result.scalar_one_or_none()
         
@@ -214,8 +203,8 @@ async def transfer_lab_test(
         
         # Create transfer record
         db_transfer = LabTransfer(
-            id=uuid.uuid4(),
-            labtest_id=labtest_uuid,
+            id=str(uuid.uuid4()),
+            labtest_id=labtest_id,
             from_user=transfer_data.from_user,
             to_user=transfer_data.to_user,
             reason=transfer_data.reason

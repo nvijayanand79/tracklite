@@ -11,10 +11,10 @@ import os
 import sys
 
 # Add the app directory to Python path
-sys.path.append('/app')
+sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
 from app.db import Base
-from app.models.receipt import Receipt, ReceiptStatus
+from app.models.receipt import Receipt, ReceivingModeEnum
 from app.models.labtest import LabTest, TestStatus, LabReportStatus
 from app.models.report import Report, FinalStatus, CommunicationStatus, CommunicationChannel
 from app.models.invoice import Invoice, InvoiceStatus
@@ -51,34 +51,37 @@ async def init_demo_data():
         # Create sample receipts
         receipts_data = [
             {
-                "receipt_no": "RCP-001",
-                "customer_name": "Acme Corp",
-                "customer_email": "contact@acme.com",
-                "customer_phone": "+1-555-0101",
-                "sample_description": "Water Quality Testing - Municipal Supply",
-                "collection_date": datetime.now() - timedelta(days=10),
-                "received_date": datetime.now() - timedelta(days=9),
-                "receipt_status": ReceiptStatus.RECEIVED
+                "receiver_name": "Acme Corp Representative",
+                "contact_number": "+1-555-0101",
+                "branch": "Main Lab",
+                "company": "Acme Corp",
+                "count_boxes": 2,
+                "receiving_mode": ReceivingModeEnum.PERSON,
+                "forward_to_central": False,
+                "courier_awb": None,
+                "receipt_date": (datetime.now() - timedelta(days=10)).strftime("%Y-%m-%d")
             },
             {
-                "receipt_no": "RCP-002", 
-                "customer_name": "TechStart Inc",
-                "customer_email": "lab@techstart.com",
-                "customer_phone": "+1-555-0102",
-                "sample_description": "Soil Contamination Analysis",
-                "collection_date": datetime.now() - timedelta(days=7),
-                "received_date": datetime.now() - timedelta(days=6),
-                "receipt_status": ReceiptStatus.RECEIVED
+                "receiver_name": "TechStart Lab Manager", 
+                "contact_number": "+1-555-0102",
+                "branch": "Research Lab",
+                "company": "TechStart Inc",
+                "count_boxes": 3,
+                "receiving_mode": ReceivingModeEnum.COURIER,
+                "forward_to_central": True,
+                "courier_awb": "AWB123456789",
+                "receipt_date": (datetime.now() - timedelta(days=7)).strftime("%Y-%m-%d")
             },
             {
-                "receipt_no": "RCP-003",
-                "customer_name": "GreenEnergy Solutions",
-                "customer_email": "samples@greenenergy.com", 
-                "customer_phone": "+1-555-0103",
-                "sample_description": "Air Quality Monitoring - Industrial Site",
-                "collection_date": datetime.now() - timedelta(days=5),
-                "received_date": datetime.now() - timedelta(days=4),
-                "receipt_status": ReceiptStatus.RECEIVED
+                "receiver_name": "GreenEnergy Coordinator",
+                "contact_number": "+1-555-0103",
+                "branch": "Environmental Lab",
+                "company": "GreenEnergy Solutions",
+                "count_boxes": 1,
+                "receiving_mode": ReceivingModeEnum.PERSON,
+                "forward_to_central": False,
+                "courier_awb": None,
+                "receipt_date": (datetime.now() - timedelta(days=5)).strftime("%Y-%m-%d")
             }
         ]
         
@@ -133,7 +136,7 @@ async def init_demo_data():
                 "retesting_requested": False,
                 "final_status": FinalStatus.APPROVED,
                 "approved_by": "Dr. Sarah Johnson",
-                "comm_status": CommunicationStatus.SENT,
+                "comm_status": CommunicationStatus.DELIVERED,
                 "comm_channel": CommunicationChannel.EMAIL,
                 "communicated_to_accounts": True
             },
@@ -179,7 +182,7 @@ async def init_demo_data():
                 "report_id": reports[1].id,
                 "invoice_no": "INV-2024-002",
                 "amount": 1850.00,
-                "status": InvoiceStatus.PENDING,
+                "status": InvoiceStatus.ISSUED,
                 "issued_at": datetime.now() - timedelta(days=5),
                 "paid_at": None
             }
@@ -194,19 +197,25 @@ async def init_demo_data():
         # Create owner preferences (for demo OTP logins)
         preferences_data = [
             {
-                "customer_email": "contact@acme.com",
-                "notification_enabled": True,
-                "preferred_channel": CommunicationChannel.EMAIL
+                "owner_email": "contact@acme.com",
+                "owner_phone": "+1-555-0101",
+                "email_notifications": True,
+                "whatsapp_notifications": False,
+                "sms_notifications": False
             },
             {
-                "customer_email": "lab@techstart.com", 
-                "notification_enabled": True,
-                "preferred_channel": CommunicationChannel.EMAIL
+                "owner_email": "lab@techstart.com", 
+                "owner_phone": "+1-555-0102",
+                "email_notifications": True,
+                "whatsapp_notifications": False,
+                "sms_notifications": False
             },
             {
-                "customer_email": "samples@greenenergy.com",
-                "notification_enabled": False,
-                "preferred_channel": CommunicationChannel.EMAIL
+                "owner_email": "samples@greenenergy.com",
+                "owner_phone": "+1-555-0103",
+                "email_notifications": False,
+                "whatsapp_notifications": False,
+                "sms_notifications": False
             }
         ]
         
@@ -223,9 +232,9 @@ async def init_demo_data():
         print("- Email: lab@techstart.com (OTP: 123456)")
         print("- Email: samples@greenenergy.com (OTP: 123456)")
         print("\nTracking IDs for public search:")
-        print(f"- {receipts[0].receipt_no} / {labtests[0].lab_doc_no}")
-        print(f"- {receipts[1].receipt_no} / {labtests[1].lab_doc_no}")
-        print(f"- {receipts[2].receipt_no} / {labtests[2].lab_doc_no}")
+        print(f"- Receipt ID: {receipts[0].id} / Lab Doc: {labtests[0].lab_doc_no}")
+        print(f"- Receipt ID: {receipts[1].id} / Lab Doc: {labtests[1].lab_doc_no}")
+        print(f"- Receipt ID: {receipts[2].id} / Lab Doc: {labtests[2].lab_doc_no}")
     
     await engine.dispose()
 
