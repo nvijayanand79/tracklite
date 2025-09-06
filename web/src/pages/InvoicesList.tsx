@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import NavigationBar from '../components/NavigationBar'
 import { Link } from 'react-router-dom'
 import { invoicesAPI } from '../services/api'
 
@@ -72,7 +73,9 @@ const InvoicesList: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <>
+      <NavigationBar />
+      <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-gray-900">Invoices</h1>
         <Link
@@ -191,7 +194,8 @@ const InvoicesList: React.FC = () => {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   )
 }
 

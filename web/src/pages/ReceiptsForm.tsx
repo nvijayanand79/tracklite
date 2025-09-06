@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import NavigationBar from '../components/NavigationBar'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -33,6 +34,7 @@ const receiptSchema = z.object({
   path: ['awb_no']
 })
 
+
 type ReceiptFormData = z.infer<typeof receiptSchema>
 
 export default function ReceiptsForm() {
@@ -66,14 +68,11 @@ export default function ReceiptsForm() {
   const onSubmit = async (data: ReceiptFormData) => {
     try {
       setServerError(null)
-      
       await api.post('/receipts', data)
-      
       // Redirect to receipts list on success
       navigate('/receipts')
     } catch (error: any) {
       console.error('Receipt creation error:', error)
-      
       if (error.response?.status === 400) {
         setServerError(error.response.data.detail || 'Validation error')
       } else if (error.response?.status === 401) {
@@ -85,19 +84,20 @@ export default function ReceiptsForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-2xl mx-auto">
-        <div className="mb-8">
-          <h2 className="text-3xl font-extrabold text-gray-900">New Receipt</h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Create a new receipt for package tracking
-          </p>
-        </div>
-        
-        <form onSubmit={handleSubmit(onSubmit)} className="bg-white shadow rounded-lg p-6 space-y-6">
-          {/* Server Error */}
-          {serverError && (
-            <div className="bg-red-50 border border-red-200 rounded-md p-3">
+    <>
+      <NavigationBar />
+      <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-2xl mx-auto">
+          <div className="mb-8">
+            <h2 className="text-3xl font-extrabold text-gray-900">New Receipt</h2>
+            <p className="mt-2 text-sm text-gray-600">
+              Create a new receipt for package tracking
+            </p>
+          </div>
+          <form onSubmit={handleSubmit(onSubmit)} className="bg-white shadow rounded-lg p-6 space-y-6">
+            {/* Server Error */}
+            {serverError && (
+              <div className="bg-red-50 border border-red-200 rounded-md p-3">
               <div className="text-red-600 text-sm">{serverError}</div>
             </div>
           )}
@@ -288,8 +288,9 @@ export default function ReceiptsForm() {
               )}
             </button>
           </div>
-        </form>
+          </form>
+        </div>
       </div>
-    </div>
+    </>
   )
 }

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import NavigationBar from '../components/NavigationBar';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../services/api';
 
@@ -64,7 +65,9 @@ const ReceiptsList: React.FC = () => {
   }
 
   return (
-    <div className="p-6">
+    <>
+      <NavigationBar />
+      <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Receipts</h1>
         <button
@@ -213,7 +216,8 @@ const ReceiptsList: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

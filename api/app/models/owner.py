@@ -1,7 +1,6 @@
 import enum
 from datetime import datetime
 from sqlalchemy import Column, String, DateTime, Enum, ForeignKey, Boolean, Text
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 import uuid
 from ..db import Base
@@ -17,8 +16,8 @@ class RetestRequestStatus(enum.Enum):
 class RetestRequest(Base):
     __tablename__ = "retest_requests"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    report_id = Column(UUID(as_uuid=True), ForeignKey("reports.id", ondelete="CASCADE"), nullable=False)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    report_id = Column(String(36), ForeignKey("reports.id", ondelete="CASCADE"), nullable=False)
     owner_email = Column(String(255), nullable=False)
     owner_phone = Column(String(20), nullable=True)
     remarks = Column(Text, nullable=False)
@@ -34,7 +33,7 @@ class RetestRequest(Base):
 class OwnerPreference(Base):
     __tablename__ = "owner_preferences"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     owner_email = Column(String(255), unique=True, nullable=False)
     owner_phone = Column(String(20), nullable=True)
     email_notifications = Column(Boolean, default=True, nullable=False)

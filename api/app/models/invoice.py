@@ -2,7 +2,6 @@ import enum
 from datetime import datetime
 from decimal import Decimal
 from sqlalchemy import Column, String, DateTime, Enum, ForeignKey, Numeric
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 import uuid
 from ..db import Base
@@ -19,8 +18,8 @@ class InvoiceStatus(enum.Enum):
 class Invoice(Base):
     __tablename__ = "invoices"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    report_id = Column(UUID(as_uuid=True), ForeignKey("reports.id", ondelete="CASCADE"), nullable=False)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    report_id = Column(String(36), ForeignKey("reports.id", ondelete="CASCADE"), nullable=False)
     invoice_no = Column(String(50), unique=True, nullable=False, index=True)
     status = Column(Enum(InvoiceStatus), default=InvoiceStatus.DRAFT, nullable=False)
     amount = Column(Numeric(10, 2), nullable=False)

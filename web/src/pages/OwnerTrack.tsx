@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import NavigationBar from '../components/NavigationBar';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -277,7 +278,9 @@ const OwnerTrack: React.FC = () => {
   );
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <>
+      <NavigationBar />
+      <div className="max-w-6xl mx-auto p-6">
       <h1 className="text-3xl font-bold mb-6">Owner Portal</h1>
 
       {/* Debug Section */}
@@ -681,7 +684,8 @@ const OwnerTrack: React.FC = () => {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   );
 };
 

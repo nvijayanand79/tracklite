@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import NavigationBar from '../components/NavigationBar'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -68,7 +69,9 @@ const InvoiceForm: React.FC = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <>
+      <NavigationBar />
+      <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">Create Invoice</h1>
         <button
@@ -182,7 +185,8 @@ const InvoiceForm: React.FC = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }
 

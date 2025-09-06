@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends, Query
 from typing import Optional, List, Dict, Any
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, delete, func
 import uuid
 
 from ..db import get_db
@@ -93,12 +93,9 @@ async def get_receipt(receipt_id: str, db: AsyncSession = Depends(get_db)):
     Retrieve a specific receipt by ID.
     """
     try:
-        # Convert string UUID to UUID object
-        receipt_uuid = uuid.UUID(receipt_id)
-        
-        # Query receipt by ID
+        # Query receipt by ID (now stored as string)
         result = await db.execute(
-            select(Receipt).where(Receipt.id == receipt_uuid)
+            select(Receipt).where(Receipt.id == receipt_id)
         )
         receipt = result.scalar_one_or_none()
         
@@ -107,11 +104,6 @@ async def get_receipt(receipt_id: str, db: AsyncSession = Depends(get_db)):
         
         return ReceiptRead(**receipt.to_dict())
         
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid receipt ID format")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
-        raise HTTPException(status_code=400, detail="Invalid receipt ID format")
     except HTTPException:
         raise
     except Exception as e:
@@ -123,12 +115,9 @@ async def delete_receipt(receipt_id: str, db: AsyncSession = Depends(get_db)):
     Delete a specific receipt by ID.
     """
     try:
-        # Convert string UUID to UUID object
-        receipt_uuid = uuid.UUID(receipt_id)
-        
-        # Delete receipt by ID
+        # Delete receipt by ID (now stored as string)
         result = await db.execute(
-            delete(Receipt).where(Receipt.id == receipt_uuid)
+            delete(Receipt).where(Receipt.id == receipt_id)
         )
         
         if result.rowcount == 0:
@@ -138,8 +127,6 @@ async def delete_receipt(receipt_id: str, db: AsyncSession = Depends(get_db)):
         
         return {"message": "Receipt deleted successfully", "id": receipt_id}
         
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid receipt ID format")
     except HTTPException:
         raise
     except Exception as e:

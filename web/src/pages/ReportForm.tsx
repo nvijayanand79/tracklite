@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import NavigationBar from '../components/NavigationBar'
 import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -88,7 +89,9 @@ const ReportForm: React.FC = () => {
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <>
+      <NavigationBar />
+      <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">Create Report</h1>
         <button
@@ -249,7 +252,8 @@ const ReportForm: React.FC = () => {
           </div>
         </form>
       </div>
-    </div>
+      </div>
+    </>
   )
 }
 

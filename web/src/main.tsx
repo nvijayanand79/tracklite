@@ -8,6 +8,7 @@ import OwnerTrack from './pages/OwnerTrack'
 import Login from './pages/Login'
 import ReceiptsForm from './pages/ReceiptsForm'
 import ReceiptsList from './pages/ReceiptsList'
+import ReceiptDetail from './pages/ReceiptDetail'
 import LabTestsList from './pages/LabTestsList'
 import LabTestForm from './pages/LabTestForm'
 import LabTestDetail from './pages/LabTestDetail'
@@ -37,6 +38,14 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <ReceiptsForm />
+      </ProtectedRoute>
+    ) 
+  },
+  { 
+    path: '/receipts/:id', 
+    element: (
+      <ProtectedRoute>
+        <ReceiptDetail />
       </ProtectedRoute>
     ) 
   },

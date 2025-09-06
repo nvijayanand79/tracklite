@@ -1,7 +1,6 @@
 import enum
 from datetime import datetime
 from sqlalchemy import Column, String, Boolean, DateTime, Enum, ForeignKey
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 import uuid
 from ..db import Base
@@ -29,8 +28,8 @@ class CommunicationChannel(enum.Enum):
 class Report(Base):
     __tablename__ = "reports"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    labtest_id = Column(UUID(as_uuid=True), ForeignKey("labtests.id", ondelete="CASCADE"), nullable=False)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    labtest_id = Column(String(36), ForeignKey("labtests.id", ondelete="CASCADE"), nullable=False)
     retesting_requested = Column(Boolean, default=False, nullable=False)
     final_status = Column(Enum(FinalStatus), default=FinalStatus.DRAFT, nullable=False)
     approved_by = Column(String, nullable=True)

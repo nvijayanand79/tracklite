@@ -93,12 +93,9 @@ async def get_receipt(receipt_id: str, db: AsyncSession = Depends(get_db)):
     Retrieve a specific receipt by ID.
     """
     try:
-        # Convert string UUID to UUID object
-        receipt_uuid = uuid.UUID(receipt_id)
-        
-        # Query receipt by ID
+        # Query receipt by ID (now stored as string)
         result = await db.execute(
-            select(Receipt).where(Receipt.id == receipt_uuid)
+            select(Receipt).where(Receipt.id == receipt_id)
         )
         receipt = result.scalar_one_or_none()
         
@@ -107,7 +104,7 @@ async def get_receipt(receipt_id: str, db: AsyncSession = Depends(get_db)):
         
         return ReceiptRead(**receipt.to_dict())
         
-    except ValueError:
-        raise HTTPException(status_code=400, detail="Invalid receipt ID format")
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")

@@ -1,5 +1,4 @@
 from sqlalchemy import Column, String, Integer, Boolean, DateTime, Enum
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
@@ -19,9 +18,9 @@ class Receipt(Base):
 
     # Primary key
     id = Column(
-        UUID(as_uuid=True), 
+        String(36), 
         primary_key=True, 
-        default=uuid.uuid4,
+        default=lambda: str(uuid.uuid4()),
         index=True
     )
     

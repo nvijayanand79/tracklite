@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import NavigationBar from '../components/NavigationBar';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -93,7 +94,9 @@ const LabTestForm: React.FC = () => {
   };
 
   return (
-    <div className="p-6 max-w-2xl mx-auto">
+    <>
+      <NavigationBar />
+      <div className="p-6 max-w-2xl mx-auto">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Create New Lab Test</h1>
         <p className="text-gray-600 mt-2">Link a new lab test to an existing receipt</p>
@@ -251,6 +254,7 @@ const LabTestForm: React.FC = () => {
         </div>
       </form>
     </div>
+    </>
   );
 };
 

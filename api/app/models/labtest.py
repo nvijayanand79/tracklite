@@ -2,7 +2,6 @@
 Lab Test database models
 """
 from sqlalchemy import Column, String, DateTime, Enum, ForeignKey, Text
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 import uuid
@@ -26,8 +25,8 @@ class LabReportStatus(str, enum.Enum):
 class LabTest(Base):
     __tablename__ = "labtests"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
-    receipt_id = Column(UUID(as_uuid=True), ForeignKey("receipts.id"), nullable=False, index=True)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
+    receipt_id = Column(String(36), ForeignKey("receipts.id"), nullable=False, index=True)
     lab_doc_no = Column(String(100), nullable=False, index=True)
     lab_person = Column(String(255), nullable=False)
     test_status = Column(Enum(TestStatus), nullable=False, default=TestStatus.QUEUED, index=True)
@@ -65,8 +64,8 @@ class LabTest(Base):
 class LabTransfer(Base):
     __tablename__ = "lab_transfers"
     
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
-    labtest_id = Column(UUID(as_uuid=True), ForeignKey("labtests.id"), nullable=False, index=True)
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()), index=True)
+    labtest_id = Column(String(36), ForeignKey("labtests.id"), nullable=False, index=True)
     from_user = Column(String(255), nullable=False)
     to_user = Column(String(255), nullable=False)
     reason = Column(Text, nullable=False)

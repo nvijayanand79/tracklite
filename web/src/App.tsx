@@ -1,4 +1,5 @@
 import { Link, useNavigate } from 'react-router-dom'
+import NavigationBar from './components/NavigationBar'
 import { authUtils } from './pages/Login'
 
 export default function App() {
@@ -11,7 +12,9 @@ export default function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center gap-6">
+    <>
+      <NavigationBar />
+      <div className="min-h-screen flex flex-col items-center justify-center gap-6">
       <h1 className="text-3xl font-bold">TraceLite — Internal Dashboard</h1>
       
       {isAuthenticated ? (
@@ -57,6 +60,7 @@ export default function App() {
           </div>
         </>
       )}
-    </div>
+      </div>
+    </>
   )
 }
