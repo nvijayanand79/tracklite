@@ -666,9 +666,9 @@ const OwnerTrack: React.FC = () => {
                       {documents.reports.length > 0 ? (
                         documents.reports.map((report) => (
                           <div key={report.id} className="p-4 border border-secondary-200 rounded-xl hover:shadow-soft transition-all duration-200">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <h4 className="font-medium text-secondary-900">{report.name}</h4>
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-medium text-secondary-900 truncate">{report.name}</h4>
                                 <p className="text-sm text-secondary-600">
                                   Created: {new Date(report.created_at).toLocaleDateString()}
                                 </p>
@@ -676,11 +676,11 @@ const OwnerTrack: React.FC = () => {
                                   <p className="text-xs text-secondary-500">Approved by: {report.approved_by}</p>
                                 )}
                               </div>
-                              <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-3 flex-shrink-0">
                                 <span className={`badge ${getStatusBadge(report.status)}`}>
                                   {report.status}
                                 </span>
-                                <button className="btn-secondary btn-sm">
+                                <button className="btn-secondary btn-sm flex-shrink-0">
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                   </svg>
@@ -712,9 +712,9 @@ const OwnerTrack: React.FC = () => {
                       {documents.invoices.length > 0 ? (
                         documents.invoices.map((invoice) => (
                           <div key={invoice.id} className="p-4 border border-secondary-200 rounded-xl hover:shadow-soft transition-all duration-200">
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <h4 className="font-medium text-secondary-900">{invoice.name}</h4>
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-medium text-secondary-900 truncate">{invoice.name}</h4>
                                 <p className="text-sm text-secondary-600">
                                   Created: {new Date(invoice.created_at).toLocaleDateString()}
                                 </p>
@@ -725,11 +725,11 @@ const OwnerTrack: React.FC = () => {
                                   <p className="text-xs text-success-600">Paid: {new Date(invoice.paid_at).toLocaleDateString()}</p>
                                 )}
                               </div>
-                              <div className="flex items-center gap-3">
+                              <div className="flex items-center gap-3 flex-shrink-0">
                                 <span className={`badge ${getStatusBadge(invoice.status)}`}>
                                   {invoice.status}
                                 </span>
-                                <button className="btn-secondary btn-sm">
+                                <button className="btn-secondary btn-sm flex-shrink-0">
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                   </svg>

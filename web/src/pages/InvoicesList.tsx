@@ -290,19 +290,52 @@ const InvoicesList: React.FC = () => {
                         {invoice.issued_at ? new Date(invoice.issued_at).toLocaleDateString() : 'Not issued'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button onClick={() => navigate(`/invoices/${invoice.id}`)} className="text-blue-600 hover:text-blue-900 mr-3">View</button>
-                        <button onClick={() => navigate(`/invoices/${invoice.id}/edit`)} className="text-green-600 hover:text-green-900 mr-3">Edit</button>
-                        {invoice.status !== 'PAID' && invoice.status !== 'CANCELLED' && (
+                        <div className="flex items-center space-x-2">
                           <button 
-                            onClick={() => {
-                              // Update invoice status to PAID
-                              console.log('Mark invoice as paid:', invoice.id);
-                            }}
-                            className="text-yellow-600 hover:text-yellow-900"
+                            onClick={() => navigate(`/invoices/${invoice.id}`)} 
+                            className="inline-flex items-center px-2 py-1 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded transition-colors"
+                            title="View Invoice"
                           >
-                            Mark Paid
+                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                            </svg>
+                            View
                           </button>
-                        )}
+                          <button 
+                            onClick={() => navigate(`/invoices/${invoice.id}/edit`)} 
+                            className="inline-flex items-center px-2 py-1 text-green-600 hover:text-green-900 hover:bg-green-50 rounded transition-colors"
+                            title="Edit Invoice"
+                          >
+                            <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            Edit
+                          </button>
+                          {invoice.status !== 'PAID' && invoice.status !== 'CANCELLED' && (
+                            <button 
+                              onClick={async () => {
+                                try {
+                                  await api.put(`/invoices/${invoice.id}`, {
+                                    ...invoice,
+                                    status: 'PAID'
+                                  });
+                                  fetchInvoices(); // Refresh the list
+                                } catch (err) {
+                                  console.error('Error updating invoice:', err);
+                                  setError('Failed to mark invoice as paid');
+                                }
+                              }}
+                              className="inline-flex items-center px-2 py-1 text-yellow-600 hover:text-yellow-900 hover:bg-yellow-50 rounded transition-colors"
+                              title="Mark as Paid"
+                            >
+                              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                              </svg>
+                              Mark Paid
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}

@@ -16,7 +16,6 @@ interface LabTestStats {
   total: number;
   pending: number;
   completed: number;
-  priority: number;
 }
 
 const LabTestsList: React.FC = () => {
@@ -25,8 +24,7 @@ const LabTestsList: React.FC = () => {
   const [stats, setStats] = useState<LabTestStats>({
     total: 0,
     pending: 0,
-    completed: 0,
-    priority: 0
+    completed: 0
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -50,9 +48,8 @@ const LabTestsList: React.FC = () => {
       const total = labTestsData.length;
       const pending = labTestsData.filter((test: LabTest) => test.test_status === 'pending').length;
       const completed = labTestsData.filter((test: LabTest) => test.test_status === 'completed').length;
-      const priority = labTestsData.filter((test: LabTest) => test.test_status === 'priority').length;
       
-      setStats({ total, pending, completed, priority });
+      setStats({ total, pending, completed });
     } catch (error) {
       setError('Failed to fetch lab tests');
       console.error('Error fetching lab tests:', error);
@@ -212,9 +209,7 @@ const LabTestsList: React.FC = () => {
                     <table className="min-w-full">
                       <thead className="bg-gray-50">
                         <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Test Name</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Sample Type</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Owner</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Test ID</th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -224,13 +219,7 @@ const LabTestsList: React.FC = () => {
                         {filteredLabTests.map((test) => (
                           <tr key={test.id} className="hover:bg-gray-50">
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm font-medium text-gray-900">{test.test_name || 'N/A'}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-900">{test.sample_type || 'N/A'}</div>
-                            </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-900">{test.owner_name || 'N/A'}</div>
+                              <div className="text-sm font-medium text-gray-900">#{test.id}</div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -248,38 +237,19 @@ const LabTestsList: React.FC = () => {
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                              <button 
-                                onClick={() => navigate(`/lab-tests/${test.id}`)}
-                                className="text-blue-600 hover:text-blue-900 mr-3"
-                              >
-                                View
-                              </button>
-                              <button 
-                                onClick={() => navigate(`/lab-tests/${test.id}/edit`)}
-                                className="text-green-600 hover:text-green-900 mr-3"
-                              >
-                                Edit
-                              </button>
-                              <button 
-                                onClick={() => {
-                                  // Update test status
-                                  const newStatus = test.test_status === 'PENDING' ? 'COMPLETED' : 'PENDING';
-                                  console.log('Update status for test:', test.id, 'to', newStatus);
-                                }}
-                                className="text-yellow-600 hover:text-yellow-900 mr-3"
-                              >
-                                {test.test_status === 'PENDING' ? 'Complete' : 'Reopen'}
-                              </button>
-                              <button 
-                                onClick={() => {
-                                  if (confirm('Are you sure you want to delete this test?')) {
-                                    console.log('Delete test:', test.id);
-                                  }
-                                }}
-                                className="text-red-600 hover:text-red-900"
-                              >
-                                Delete
-                              </button>
+                              <div className="flex items-center space-x-2">
+                                <button 
+                                  onClick={() => navigate(`/lab-tests/${test.id}`)}
+                                  className="inline-flex items-center px-2 py-1 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded transition-colors"
+                                  title="View Test Details"
+                                >
+                                  <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                  </svg>
+                                  View
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         ))}
@@ -293,55 +263,43 @@ const LabTestsList: React.FC = () => {
             {/* Sidebar */}
             <div className="space-y-6">
               {/* Lab Test Statistics */}
-              <div className="bg-white rounded-lg shadow-sm p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">Lab Test Statistics</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                        <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+              <div className="bg-white rounded-lg shadow-sm p-4">
+                <h3 className="text-md font-semibold text-gray-900 mb-3">Lab Test Statistics</h3>
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-2 bg-blue-50 rounded">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                        <svg className="w-3 h-3 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                       </div>
-                      <span className="text-sm font-medium text-gray-900">Total Tests</span>
+                      <span className="text-xs font-medium text-gray-900">Total</span>
                     </div>
-                    <span className="text-lg font-bold text-blue-600">{stats.total}</span>
+                    <span className="text-md font-bold text-blue-600">{stats.total}</span>
                   </div>
                   
-                  <div className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center">
-                        <svg className="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center justify-between p-2 bg-yellow-50 rounded">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <svg className="w-3 h-3 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
                       </div>
-                      <span className="text-sm font-medium text-gray-900">Pending</span>
+                      <span className="text-xs font-medium text-gray-900">Pending</span>
                     </div>
-                    <span className="text-lg font-bold text-yellow-600">{stats.pending}</span>
+                    <span className="text-md font-bold text-yellow-600">{stats.pending}</span>
                   </div>
                   
-                  <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                        <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center justify-between p-2 bg-green-50 rounded">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                        <svg className="w-3 h-3 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
                         </svg>
                       </div>
-                      <span className="text-sm font-medium text-gray-900">Completed</span>
+                      <span className="text-xs font-medium text-gray-900">Completed</span>
                     </div>
-                    <span className="text-lg font-bold text-green-600">{stats.completed}</span>
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                        <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.996-.833-2.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z" />
-                        </svg>
-                      </div>
-                      <span className="text-sm font-medium text-gray-900">Priority</span>
-                    </div>
-                    <span className="text-lg font-bold text-red-600">{stats.priority}</span>
+                    <span className="text-md font-bold text-green-600">{stats.completed}</span>
                   </div>
                 </div>
               </div>
