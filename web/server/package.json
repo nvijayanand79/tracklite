@@ -11,7 +11,7 @@
     "serve": "npm run build:win && npm start"
   },
   "dependencies": {
-    "better-sqlite3": "^8.4.0",
+    "sqlite3": "^5.1.6",
     "express": "^4.18.2",
     "morgan": "^1.10.0"
   },
