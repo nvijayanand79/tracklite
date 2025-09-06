@@ -24,6 +24,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 const router = createBrowserRouter([
   { path: '/', element: <App /> },
   { path: '/owner/track', element: <OwnerTrack /> },
+  { path: '/owner-track', element: <OwnerTrack /> },
   { path: '/login', element: <Login /> },
   { 
     path: '/receipts', 
