@@ -442,9 +442,25 @@ const ReceiptsList: React.FC = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button
                           onClick={() => navigate(`/receipts/${receipt.id}`)}
-                          className="text-blue-600 hover:text-blue-900"
+                          className="text-blue-600 hover:text-blue-900 mr-3"
                         >
                           View
+                        </button>
+                        <button
+                          onClick={() => navigate(`/receipts/${receipt.id}/edit`)}
+                          className="text-green-600 hover:text-green-900 mr-3"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          onClick={() => {
+                            // Toggle forward status
+                            // This would need API implementation
+                            console.log('Update status for receipt:', receipt.id);
+                          }}
+                          className="text-yellow-600 hover:text-yellow-900"
+                        >
+                          {receipt.forward_to_chennai ? 'Unforward' : 'Forward'}
                         </button>
                       </td>
                     </tr>

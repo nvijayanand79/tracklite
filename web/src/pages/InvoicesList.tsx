@@ -291,8 +291,17 @@ const InvoicesList: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button onClick={() => navigate(`/invoices/${invoice.id}`)} className="text-blue-600 hover:text-blue-900 mr-3">View</button>
+                        <button onClick={() => navigate(`/invoices/${invoice.id}/edit`)} className="text-green-600 hover:text-green-900 mr-3">Edit</button>
                         {invoice.status !== 'PAID' && invoice.status !== 'CANCELLED' && (
-                          <button className="text-green-600 hover:text-green-900">Mark Paid</button>
+                          <button 
+                            onClick={() => {
+                              // Update invoice status to PAID
+                              console.log('Mark invoice as paid:', invoice.id);
+                            }}
+                            className="text-yellow-600 hover:text-yellow-900"
+                          >
+                            Mark Paid
+                          </button>
                         )}
                       </td>
                     </tr>

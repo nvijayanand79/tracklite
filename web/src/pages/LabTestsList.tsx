@@ -248,9 +248,38 @@ const LabTestsList: React.FC = () => {
                               </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                              <button className="text-blue-600 hover:text-blue-900 mr-3">View</button>
-                              <button className="text-green-600 hover:text-green-900 mr-3">Edit</button>
-                              <button className="text-red-600 hover:text-red-900">Delete</button>
+                              <button 
+                                onClick={() => navigate(`/lab-tests/${test.id}`)}
+                                className="text-blue-600 hover:text-blue-900 mr-3"
+                              >
+                                View
+                              </button>
+                              <button 
+                                onClick={() => navigate(`/lab-tests/${test.id}/edit`)}
+                                className="text-green-600 hover:text-green-900 mr-3"
+                              >
+                                Edit
+                              </button>
+                              <button 
+                                onClick={() => {
+                                  // Update test status
+                                  const newStatus = test.test_status === 'PENDING' ? 'COMPLETED' : 'PENDING';
+                                  console.log('Update status for test:', test.id, 'to', newStatus);
+                                }}
+                                className="text-yellow-600 hover:text-yellow-900 mr-3"
+                              >
+                                {test.test_status === 'PENDING' ? 'Complete' : 'Reopen'}
+                              </button>
+                              <button 
+                                onClick={() => {
+                                  if (confirm('Are you sure you want to delete this test?')) {
+                                    console.log('Delete test:', test.id);
+                                  }
+                                }}
+                                className="text-red-600 hover:text-red-900"
+                              >
+                                Delete
+                              </button>
                             </td>
                           </tr>
                         ))}
