@@ -1,11 +1,14 @@
 {
-  "name": "tracelite-web-server",
+  "name": "tracelite-unified-server",
   "version": "0.1.0",
   "private": true,
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon --watch . index.js"
+    "dev": "nodemon --watch . index.js",
+    "build": "cd .. && npm run build && cp -r dist/* server/public/",
+    "build:win": "cd .. && npm run build && xcopy /E /I /Y dist server\\public",
+    "serve": "npm run build:win && npm start"
   },
   "dependencies": {
     "better-sqlite3": "^8.4.0",

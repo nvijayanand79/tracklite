@@ -1,25 +1,71 @@
-This is a lightweight Node.js Express server that serves as a local API proxy to the existing SQLite database used by the project.
+# Tracelite Unified Server
 
-Purpose:
-- Avoid CORS by co-hosting API under the same origin as the frontend during development
-- Provide a small, maintainable JS API for teams more comfortable with Node.js
+This is a unified Node.js Express server that serves both the React frontend and API endpoints from a single process.
 
-Quick start (from web/server):
+## Features
+- Serves React frontend as static files
+- Provides REST API endpoints under `/api`
+- Single process for easy deployment
+- No CORS issues since frontend and API share the same origin
 
-1. Install dependencies
+## Quick Start
 
+### Development (from web/server):
+
+1. Install server dependencies:
 ```powershell
 npm install
 ```
 
-2. Start server
-
+2. Build and serve the application:
 ```powershell
-npm run start
+npm run serve
 ```
 
-The server listens by default on port 5173 and exposes endpoints prefixed with `/api` (for example, `/api/reports`, `/api/labtests`, `/api/receipts`, `/api/invoices`, `/api/owner/track/:query`).
+This will:
+- Build the React frontend
+- Copy built files to `server/public/`
+- Start the unified server on http://localhost:5173
 
-Notes:
-- The server reads the SQLite database from `data/tracelite.db` at the repository root. Ensure this file exists and is not locked by other processes.
-- This is intentionally read-only and minimal. If you need write endpoints, we can add them with proper transaction handling and backups.
+### Manual steps:
+
+1. Install server dependencies:
+```powershell
+npm install
+```
+
+2. Build frontend (from web/ directory):
+```powershell
+cd ..
+npm run build
+```
+
+3. Copy built files to server (Windows):
+```powershell
+xcopy /E /I /Y dist server\public
+```
+
+4. Start server:
+```powershell
+cd server
+npm start
+```
+
+## API Endpoints
+
+All API endpoints are prefixed with `/api`:
+- `GET /api/health` - Health check
+- `GET /api/receipts` - List receipts
+- `GET /api/receipts/:id` - Get receipt details
+- `GET /api/labtests` - List lab tests
+- `GET /api/labtests/:id` - Get lab test details
+- `GET /api/reports` - List reports
+- `GET /api/reports/:id` - Get report details
+- `GET /api/invoices` - List invoices
+- `GET /api/invoices/:id` - Get invoice details
+- `GET /api/owner/track/:query` - Track samples by ID or AWB
+
+## Notes
+- The server reads from SQLite database at `../../data/tracelite.db`
+- Frontend routes are handled by React Router (SPA mode)
+- Server is currently read-only for safety

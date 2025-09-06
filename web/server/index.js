@@ -7,6 +7,9 @@ const app = express();
 app.use(express.json());
 app.use(morgan('dev'));
 
+// Serve static frontend files from public directory
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Database file - point to repo data db if exists
 const dbFile = path.resolve(__dirname, '..', '..', 'data', 'tracelite.db');
 const db = new Database(dbFile, { readonly: true });
@@ -127,7 +130,14 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
+// Catch-all handler: send back React's index.html file for SPA routing
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
 const port = process.env.PORT || 5173;
 app.listen(port, () => {
-  console.log(`Tracelite web server listening on http://localhost:${port}`);
+  console.log(`Tracelite unified server listening on http://localhost:${port}`);
+  console.log(`Frontend: http://localhost:${port}`);
+  console.log(`API: http://localhost:${port}/api`);
 });
