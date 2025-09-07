@@ -58,15 +58,16 @@ const ReportForm: React.FC = () => {
 
   const watchedFinalStatus = watch('final_status')
 
-  // Fetch lab tests for the dropdown
+  // Fetch lab tests for the dropdown (only those without reports)
   useEffect(() => {
     const fetchLabTests = async () => {
       try {
-        const response = await api.get('/labtests')
-        setLabTests(response.data)
+        const response = await api.get('/labtests/available-for-reports')
+        setLabTests(Array.isArray(response.data) ? response.data : [])
       } catch (err: any) {
         console.error('Error fetching lab tests:', err)
         setError('Failed to fetch lab tests')
+        setLabTests([]) // Ensure it's always an array
       }
     }
 
@@ -119,14 +120,23 @@ const ReportForm: React.FC = () => {
               id="labtest_id"
               {...register('labtest_id')}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              disabled={!Array.isArray(labTests) || labTests.length === 0}
             >
-              <option value="">Select a lab test</option>
-              {labTests.map((labTest) => (
+              <option value="">
+                {!Array.isArray(labTests) || labTests.length === 0 ? 'No lab tests available for reports' : 'Select a lab test'}
+              </option>
+              {Array.isArray(labTests) && labTests.map((labTest) => (
                 <option key={labTest.id} value={labTest.id}>
                   {labTest.lab_doc_no} - {labTest.lab_person} ({labTest.test_status})
                 </option>
               ))}
             </select>
+            <p className="mt-1 text-xs text-gray-500">
+              {!Array.isArray(labTests) || labTests.length === 0 
+                ? 'All lab tests already have reports. Create new lab tests first.'
+                : 'Only lab tests without existing reports are shown'
+              }
+            </p>
             {errors.labtest_id && (
               <p className="mt-1 text-sm text-red-600">{errors.labtest_id.message}</p>
             )}

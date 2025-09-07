@@ -24,11 +24,13 @@ type LabTestFormData = z.infer<typeof labTestSchema>;
 
 interface Receipt {
   id: string;
-  tracking_number?: string;
+  courier_awb?: string;
   receiver_name: string;
   branch: string;
   company: string;
-  awb_no?: string;
+  contact_number: string;
+  count_boxes: number;
+  receiving_mode: string;
 }
 
 const LabTestForm: React.FC = () => {
@@ -52,7 +54,7 @@ const LabTestForm: React.FC = () => {
   });
 
   const selectedReceiptId = watch('receipt_id');
-  const selectedReceipt = receipts.find(r => r.id === selectedReceiptId);
+  const selectedReceipt = Array.isArray(receipts) ? receipts.find(r => r.id === selectedReceiptId) : null;
 
   useEffect(() => {
     fetchReceipts();
@@ -62,10 +64,15 @@ const LabTestForm: React.FC = () => {
     try {
       setLoading(true);
       const response = await api.get('/receipts');
-      setReceipts(response.data);
+      console.log('📄 Receipts API response:', response.data);
+      // Ensure we always have an array
+      const receiptsData = Array.isArray(response.data) ? response.data : [];
+      console.log('📄 Processed receipts data:', receiptsData);
+      setReceipts(receiptsData);
     } catch (err: any) {
       console.error('Error fetching receipts:', err);
       setError('Failed to fetch receipts');
+      setReceipts([]); // Ensure it's always an array on error
     } finally {
       setLoading(false);
     }
@@ -118,12 +125,16 @@ const LabTestForm: React.FC = () => {
           <select
             {...register('receipt_id')}
             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            disabled={loading}
+            disabled={loading || !Array.isArray(receipts) || receipts.length === 0}
           >
-            <option value="">Select a receipt...</option>
-            {receipts.map((receipt) => (
+            <option value="">
+              {loading ? 'Loading receipts...' : 
+               !Array.isArray(receipts) || receipts.length === 0 ? 'No receipts available' : 
+               'Select a receipt...'}
+            </option>
+            {Array.isArray(receipts) && receipts.map((receipt) => (
               <option key={receipt.id} value={receipt.id}>
-                {receipt.tracking_number || 'No tracking'} - {receipt.receiver_name} ({receipt.branch})
+                {receipt.courier_awb || 'No AWB'} - {receipt.receiver_name} ({receipt.branch})
               </option>
             ))}
           </select>
@@ -137,13 +148,13 @@ const LabTestForm: React.FC = () => {
           <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
             <h3 className="text-sm font-medium text-blue-900 mb-2">Selected Receipt Details</h3>
             <div className="text-sm text-blue-800">
-              <p><strong>Tracking:</strong> {selectedReceipt.tracking_number || 'Not assigned'}</p>
+              <p><strong>AWB/Tracking:</strong> {selectedReceipt.courier_awb || 'Not assigned'}</p>
               <p><strong>Receiver:</strong> {selectedReceipt.receiver_name}</p>
               <p><strong>Branch:</strong> {selectedReceipt.branch}</p>
               <p><strong>Company:</strong> {selectedReceipt.company}</p>
-              {selectedReceipt.awb_no && (
-                <p><strong>AWB:</strong> {selectedReceipt.awb_no}</p>
-              )}
+              <p><strong>Contact:</strong> {selectedReceipt.contact_number}</p>
+              <p><strong>Boxes:</strong> {selectedReceipt.count_boxes}</p>
+              <p><strong>Mode:</strong> {selectedReceipt.receiving_mode}</p>
             </div>
           </div>
         )}

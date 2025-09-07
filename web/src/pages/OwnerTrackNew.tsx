@@ -252,13 +252,25 @@ const OwnerTrack: React.FC = () => {
 
   // Check for existing authentication on load
   useEffect(() => {
-    const token = localStorage.getItem('owner_token');
-    if (token) {
-      // Set token in API headers
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      setIsAuthenticated(true);
-      loadDocuments();
-      loadPreferences();
+    try {
+      const token = localStorage.getItem('owner_token');
+      if (token) {
+        // Set token in API headers
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        setIsAuthenticated(true);
+        
+        // Load data with error handling
+        Promise.all([
+          loadDocuments().catch(err => console.warn('Failed to load documents:', err)),
+          loadPreferences().catch(err => console.warn('Failed to load preferences:', err))
+        ]).catch(err => {
+          console.warn('Failed to load initial data:', err);
+          // Don't set error state here, just log
+        });
+      }
+    } catch (err) {
+      console.error('Error in useEffect:', err);
+      // Don't crash the component, just log the error
     }
   }, []);
 

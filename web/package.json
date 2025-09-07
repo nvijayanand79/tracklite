@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "vite preview --port 5173 --host 0.0.0.0",
+    "prod": "npm run build && npm run start"
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
