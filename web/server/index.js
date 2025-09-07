@@ -242,14 +242,14 @@ async function initializeDatabase() {
         }
       });
 
-      // Create invoices table for billing workflow
+      // Create invoices table for billing workflow (matches alembic migration 003)
       db.run(`CREATE TABLE IF NOT EXISTS invoices (
         id TEXT PRIMARY KEY,
         report_id TEXT NOT NULL,
+        invoice_no TEXT NOT NULL UNIQUE,
+        status TEXT DEFAULT 'DRAFT',
         amount REAL NOT NULL,
-        due_date DATE,
-        status TEXT DEFAULT 'PENDING',
-        notes TEXT,
+        issued_at DATETIME NOT NULL,
         paid_at DATETIME,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
@@ -258,7 +258,7 @@ async function initializeDatabase() {
         if (err) {
           console.error('❌ Error creating invoices table:', err);
         } else {
-          console.log('✅ Invoices table ready');
+          console.log('✅ Invoices table ready (schema matches alembic migration)');
         }
       });
 
@@ -815,6 +815,26 @@ app.get('/api/labtests', async (req, res) => {
   }
 });
 
+// Get labtests that don't have reports yet (for report creation form)
+app.get('/api/labtests/available-for-reports', async (req, res) => {
+  console.log('🔍 Available labtests endpoint called');
+  try {
+    const query = `
+      SELECT l.* 
+      FROM labtests l
+      LEFT JOIN reports r ON l.id = r.labtest_id
+      WHERE r.id IS NULL
+      ORDER BY l.created_at DESC
+    `;
+    const rows = await dbAll(query);
+    console.log(`🔍 Found ${rows.length} available labtests`);
+    res.json(rows);
+  } catch (err) {
+    console.error('❌ Error fetching available labtests:', err);
+    res.status(500).json({ error: 'Failed to fetch available labtests' });
+  }
+});
+
 app.get('/api/labtests/:id', async (req, res) => {
   try {
     const row = await dbGet('SELECT * FROM labtests WHERE id = ?', [req.params.id]);
@@ -893,27 +913,33 @@ app.post('/api/labtests', async (req, res) => {
   }
 });
 
-// Get labtests that don't have reports yet (for report creation form)
-app.get('/api/labtests/available-for-reports', async (req, res) => {
-  try {
-    const query = `
-      SELECT l.* 
-      FROM labtests l
-      LEFT JOIN reports r ON l.id = r.labtest_id
-      WHERE r.id IS NULL
-      ORDER BY l.created_at DESC
-    `;
-    const rows = await dbAll(query);
-    res.json(rows);
-  } catch (err) {
-    console.error('❌ Error fetching available labtests:', err);
-    res.status(500).json({ error: 'Failed to fetch available labtests' });
-  }
-});
-
 // Reports with joined data (lab tests and receipts)
 app.get('/api/reports', async (req, res) => {
   try {
+    // Disable caching to ensure fresh data
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
+    
+    // Check the actual receipt IDs that exist
+    const existingReceipts = await dbAll('SELECT id, company, count_boxes FROM receipts');
+    console.log('🔍 Existing receipts:', existingReceipts);
+    
+    // Check what receipt IDs the labtests are referencing
+    const labtestReceiptRefs = await dbAll('SELECT id, receipt_id FROM labtests');
+    console.log('🔍 Labtest receipt references:', labtestReceiptRefs);
+    
+    // Check for orphaned labtests (labtests without valid receipts)
+    const orphanedLabtests = await dbAll(`
+      SELECT l.id, l.receipt_id 
+      FROM labtests l 
+      LEFT JOIN receipts r ON l.receipt_id = r.id 
+      WHERE r.id IS NULL
+    `);
+    console.log('🔍 Orphaned labtests (no matching receipts):', orphanedLabtests);
+    
     const query = `
       SELECT 
         r.*,
@@ -937,6 +963,19 @@ app.get('/api/reports', async (req, res) => {
       LIMIT 500
     `;
     const rows = await dbAll(query);
+    
+    console.log(`🔍 Reports API: Found ${rows.length} reports`);
+    if (rows.length > 0) {
+      console.log('🔍 First report data:', {
+        id: rows[0].id,
+        labtest_id: rows[0].labtest_id,
+        receipt_id: rows[0].receipt_id,
+        company: rows[0].company,
+        count_boxes: rows[0].count_boxes,
+        receiver_name: rows[0].receiver_name
+      });
+    }
+    
     res.json(rows);
   } catch (err) {
     console.error('❌ Error fetching reports:', err);
@@ -946,6 +985,13 @@ app.get('/api/reports', async (req, res) => {
 
 app.get('/api/reports/:id', async (req, res) => {
   try {
+    // Disable caching to ensure fresh data
+    res.set({
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0'
+    });
+    
     const query = `
       SELECT 
         r.*,
@@ -969,6 +1015,14 @@ app.get('/api/reports/:id', async (req, res) => {
     `;
     const row = await dbGet(query, [req.params.id]);
     if (!row) return res.status(404).json({ error: 'Report not found' });
+    
+    console.log(`🔍 Individual report data for ${req.params.id}:`, {
+      id: row.id,
+      company: row.company,
+      count_boxes: row.count_boxes,
+      receiver_name: row.receiver_name
+    });
+    
     res.json(row);
   } catch (err) {
     console.error('❌ Error fetching report:', err);
@@ -1109,9 +1163,8 @@ app.post('/api/invoices', async (req, res) => {
     const {
       report_id,
       amount,
-      due_date,
       status,
-      notes
+      issued_at
     } = req.body;
 
     console.log('📝 Creating new invoice:', req.body);
@@ -1131,26 +1184,27 @@ app.post('/api/invoices', async (req, res) => {
       });
     }
 
-    // Generate new invoice ID
+    // Generate new invoice ID and invoice number
     const existingCount = await dbGet('SELECT COUNT(*) as count FROM invoices');
     const nextNumber = (existingCount?.count || 0) + 1;
     const newId = `INV-${String(nextNumber).padStart(3, '0')}`;
+    const invoiceNo = `INV-${new Date().getFullYear()}-${String(nextNumber).padStart(4, '0')}`;
 
-    console.log(`📋 Generated new invoice ID: ${newId}`);
+    console.log(`📋 Generated new invoice ID: ${newId}, Invoice No: ${invoiceNo}`);
 
-    // Insert invoice (assuming basic invoice structure)
+    // Insert invoice with correct schema (matching alembic migration)
     await dbRun(`
       INSERT INTO invoices (
-        id, report_id, amount, due_date, status, notes,
+        id, report_id, invoice_no, status, amount, issued_at,
         created_at, updated_at
       ) VALUES (?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
     `, [
       newId,
       report_id,
+      invoiceNo,
+      status || 'DRAFT',
       parseFloat(amount),
-      due_date || null,
-      status || 'PENDING',
-      notes || null
+      issued_at || new Date().toISOString()
     ]);
 
     console.log(`✅ Invoice created successfully with ID: ${newId}`);
@@ -1352,18 +1406,110 @@ app.patch('/api/reports/:id', async (req, res) => {
     const updates = req.body;
     console.log(`📝 PATCH updating report ${id}:`, updates);
 
-    const fields = Object.keys(updates).filter(key => key !== 'id');
-    const setClause = fields.map(field => `${field} = ?`).join(', ');
-    const values = fields.map(field => updates[field]);
-    values.push(id);
+    // Separate report fields from labtest fields
+    const reportFields = ['retesting_requested', 'final_status', 'approved_by', 'comm_status', 'comm_channel', 'communicated_to_accounts'];
+    const labtestFields = ['test_status', 'lab_report_status', 'lab_remarks'];
+    
+    const reportUpdates = {};
+    const labtestUpdates = {};
+    
+    Object.keys(updates).forEach(key => {
+      if (reportFields.includes(key)) {
+        reportUpdates[key] = updates[key];
+      } else if (labtestFields.includes(key)) {
+        // Map lab_remarks back to remarks for the labtests table
+        const fieldName = key === 'lab_remarks' ? 'remarks' : key;
+        labtestUpdates[fieldName] = updates[key];
+      }
+    });
 
-    await dbRun(`UPDATE reports SET ${setClause}, updated_at = datetime('now') WHERE id = ?`, values);
-    const updatedRecord = await dbGet('SELECT * FROM reports WHERE id = ?', [id]);
+    // Update reports table if there are report fields to update
+    if (Object.keys(reportUpdates).length > 0) {
+      const reportFieldKeys = Object.keys(reportUpdates);
+      const reportSetClause = reportFieldKeys.map(field => `${field} = ?`).join(', ');
+      const reportValues = reportFieldKeys.map(field => reportUpdates[field]);
+      reportValues.push(id);
+      
+      await dbRun(`UPDATE reports SET ${reportSetClause}, updated_at = datetime('now') WHERE id = ?`, reportValues);
+      console.log(`✅ Report table updated for ${id}`);
+    }
+
+    // Update labtests table if there are labtest fields to update
+    if (Object.keys(labtestUpdates).length > 0) {
+      // First get the labtest_id from the report
+      const report = await dbGet('SELECT labtest_id FROM reports WHERE id = ?', [id]);
+      if (report && report.labtest_id) {
+        const labtestFieldKeys = Object.keys(labtestUpdates);
+        const labtestSetClause = labtestFieldKeys.map(field => `${field} = ?`).join(', ');
+        const labtestValues = labtestFieldKeys.map(field => labtestUpdates[field]);
+        labtestValues.push(report.labtest_id);
+        
+        await dbRun(`UPDATE labtests SET ${labtestSetClause}, updated_at = datetime('now') WHERE id = ?`, labtestValues);
+        console.log(`✅ Labtest table updated for ${report.labtest_id}`);
+      }
+    }
+
+    // Return the updated record with all joined data
+    const query = `
+      SELECT 
+        r.*,
+        l.receipt_id,
+        l.lab_doc_no,
+        l.lab_person,
+        l.test_status,
+        l.lab_report_status,
+        l.remarks as lab_remarks,
+        rec.receiver_name,
+        rec.contact_number,
+        rec.branch,
+        rec.company,
+        rec.count_boxes,
+        rec.receiving_mode,
+        rec.receipt_date
+      FROM reports r
+      LEFT JOIN labtests l ON r.labtest_id = l.id
+      LEFT JOIN receipts rec ON l.receipt_id = rec.id
+      WHERE r.id = ?
+    `;
+    const updatedRecord = await dbGet(query, [id]);
     console.log(`✅ Report ${id} patched successfully`);
     res.json(updatedRecord);
   } catch (err) {
     console.error('❌ Error patching report:', err);
     res.status(500).json({ error: 'Failed to patch report', details: err.message });
+  }
+});
+
+// Approve report
+app.post('/api/reports/:id/approve', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { approved_by } = req.body;
+    
+    console.log(`✅ Approving report ${id} by ${approved_by}`);
+    
+    // Update report status to approved
+    await dbRun(
+      `UPDATE reports SET 
+        final_status = 'APPROVED', 
+        approved_by = ?, 
+        updated_at = datetime('now') 
+      WHERE id = ?`, 
+      [approved_by, id]
+    );
+    
+    // Get updated report
+    const updatedReport = await dbGet('SELECT * FROM reports WHERE id = ?', [id]);
+    
+    if (!updatedReport) {
+      return res.status(404).json({ error: 'Report not found' });
+    }
+    
+    console.log(`✅ Report ${id} approved successfully by ${approved_by}`);
+    res.json(updatedReport);
+  } catch (err) {
+    console.error('❌ Error approving report:', err);
+    res.status(500).json({ error: 'Failed to approve report', details: err.message });
   }
 });
 
@@ -1698,6 +1844,75 @@ app.get('/api/test-db', async (req, res) => {
   } catch (err) {
     console.error('❌ Database test error:', err);
     res.status(500).json({ error: 'Database test failed', details: err.message });
+  }
+});
+
+// Check specific table schema
+app.get('/api/schema/:tableName', async (req, res) => {
+  try {
+    const { tableName } = req.params;
+    const columns = await dbAll(`PRAGMA table_info(${tableName})`);
+    
+    res.json({
+      table: tableName,
+      columns: columns,
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    console.error(`❌ Error checking schema for ${req.params.tableName}:`, err);
+    res.status(500).json({ error: 'Schema check failed', details: err.message });
+  }
+});
+
+// Clear all data and reinitialize database
+app.post('/api/admin/reset-database', async (req, res) => {
+  try {
+    console.log('🔄 Starting database reset...');
+    
+    // Delete all data from tables (in reverse order of dependencies)
+    await dbRun('DELETE FROM invoices');
+    console.log('✅ Cleared invoices table');
+    
+    await dbRun('DELETE FROM reports');
+    console.log('✅ Cleared reports table');
+    
+    await dbRun('DELETE FROM labtests');
+    console.log('✅ Cleared labtests table');
+    
+    await dbRun('DELETE FROM receipts');
+    console.log('✅ Cleared receipts table');
+    
+    // Reset auto-increment counters if using AUTOINCREMENT (only if table exists)
+    try {
+      await dbRun('DELETE FROM sqlite_sequence WHERE name IN ("receipts", "labtests", "reports", "invoices")');
+      console.log('✅ Reset sequence counters');
+    } catch (err) {
+      console.log('ℹ️ No sequence counters to reset (table not using AUTOINCREMENT)');
+    }
+    
+    // Reload demo data
+    await loadDemoData();
+    console.log('✅ Demo data reloaded');
+    
+    // Get counts to verify
+    const receiptCount = await dbGet('SELECT COUNT(*) as count FROM receipts');
+    const labtestCount = await dbGet('SELECT COUNT(*) as count FROM labtests');
+    const reportCount = await dbGet('SELECT COUNT(*) as count FROM reports');
+    const invoiceCount = await dbGet('SELECT COUNT(*) as count FROM invoices');
+    
+    res.json({
+      message: 'Database reset and reinitialized successfully',
+      counts: {
+        receipts: receiptCount.count,
+        labtests: labtestCount.count,
+        reports: reportCount.count,
+        invoices: invoiceCount.count
+      },
+      timestamp: new Date().toISOString()
+    });
+  } catch (err) {
+    console.error('❌ Database reset error:', err);
+    res.status(500).json({ error: 'Database reset failed', details: err.message });
   }
 });
 

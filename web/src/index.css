@@ -4,29 +4,56 @@
 @tailwind utilities;
 
 @layer base {
-  /* Clean, compact typography */
+  /* Enhanced typography system for accessibility */
   html {
     font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-size: 16px; /* Base font size for accessibility */
   }
 
   body {
-    @apply bg-gray-50 text-gray-900 leading-normal;
+    @apply bg-gray-50 text-gray-900 leading-relaxed;
     @apply min-h-screen;
   }
 
-  /* Compact heading styles */
+  /* Professional heading hierarchy - WCAG AA compliant */
   h1 {
-    @apply text-2xl font-semibold text-gray-900 tracking-tight;
+    @apply text-3xl font-semibold text-gray-900 tracking-tight leading-tight;
+    /* 30px / 1.875rem - Main page titles */
   }
 
   h2 {
-    @apply text-xl font-medium text-gray-800;
+    @apply text-xl font-semibold text-gray-800 leading-tight;
+    /* 20px / 1.25rem - Section titles */
   }
 
   h3 {
-    @apply text-lg font-medium text-gray-700;
+    @apply text-lg font-medium text-gray-700 leading-snug;
+    /* 18px / 1.125rem - Subsection titles */
+  }
+
+  h4 {
+    @apply text-base font-medium text-gray-700 leading-normal;
+    /* 16px / 1rem - Small headings */
+  }
+
+  /* Body text standards */
+  p {
+    @apply text-base leading-relaxed text-gray-900;
+    /* 16px / 1rem base with 1.625 line height for readability */
+  }
+
+  /* Form labels */
+  label {
+    @apply text-sm font-medium text-gray-700 leading-normal;
+    /* 14px / 0.875rem for form labels */
+  }
+
+  /* Small text */
+  small {
+    @apply text-sm text-gray-600 leading-normal;
+    /* 14px / 0.875rem for captions, helper text */
   }
 }
 
@@ -42,12 +69,15 @@
     @apply shadow-md;
   }
 
-  /* Professional button system */
+  /* Professional button system - WCAG AA compliant */
   .btn {
-    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-md;
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-md;
+    @apply text-sm font-medium leading-normal; /* Consistent button text size */
     @apply transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
     @apply disabled:opacity-50 disabled:cursor-not-allowed;
     @apply gap-2;
+    /* Minimum touch target: 44px height for accessibility */
+    min-height: 44px;
   }
 
   /* Primary button - professional blue */
@@ -61,7 +91,7 @@
     @apply border border-gray-300;
   }
 
-  /* Danger button - subtle red */
+  /* Danger button - accessible red */
   .btn-danger {
     @apply btn bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
   }
@@ -71,49 +101,77 @@
     @apply btn bg-green-600 text-white hover:bg-green-700 focus:ring-green-500;
   }
 
-  /* Small button variant */
+  /* Button size variants */
   .btn-sm {
-    @apply px-3 py-1.5 text-xs;
+    @apply px-3 py-1.5 text-sm font-medium;
+    min-height: 36px; /* Smaller but still accessible */
   }
 
-  /* Large button variant */
   .btn-lg {
-    @apply px-6 py-3 text-base;
+    @apply px-6 py-3 text-base font-medium;
+    min-height: 48px; /* Larger touch target */
   }
 
-  /* Input fields */
+  /* Form controls - accessibility focused */
   .form-input {
     @apply block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm;
+    @apply text-base leading-normal; /* Consistent form text size */
     @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
     @apply disabled:bg-gray-50 disabled:text-gray-500;
+    /* Minimum height for touch accessibility */
+    min-height: 44px;
   }
 
   /* Select fields */
   .form-select {
     @apply form-input appearance-none bg-white;
+    @apply text-base leading-normal; /* Consistent select text size */
     @apply bg-no-repeat bg-right pr-10;
     background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
     background-position: right 0.5rem center;
     background-size: 1.5em 1.5em;
   }
 
-  /* Labels */
+  /* Form labels - enhanced for accessibility */
   .form-label {
-    @apply block text-sm font-medium text-gray-700 mb-1;
+    @apply block text-sm font-medium text-gray-700 mb-1 leading-normal;
   }
 
-  /* Table styles */
+  /* Table styles - improved typography */
   .table {
     @apply min-w-full divide-y divide-gray-200;
   }
 
   .table th {
-    @apply px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider;
+    @apply px-4 py-3 text-left font-medium text-gray-500 uppercase tracking-wider;
+    @apply text-xs leading-tight; /* Consistent table header size */
     @apply bg-gray-50;
   }
 
+  /* Professional table cell styles */
+  .table-cell {
+    @apply px-6 py-3 whitespace-nowrap text-xs text-gray-900;
+  }
+  
+  .table-cell-secondary {
+    @apply px-6 py-3 whitespace-nowrap text-xs text-gray-500;
+  }
+  
+  .table-cell-primary {
+    @apply px-6 py-3 whitespace-nowrap text-xs font-medium text-gray-900;
+  }
+  
+  .table-status-badge {
+    @apply inline-flex px-2 py-1 text-xs font-medium rounded-full;
+  }
+  
+  .table-action-button {
+    @apply inline-flex items-center px-2 py-1 text-xs font-medium rounded transition-colors;
+  }
+
   .table td {
-    @apply px-4 py-3 whitespace-nowrap text-sm text-gray-900;
+    @apply px-4 py-3 whitespace-nowrap text-gray-900;
+    @apply text-sm leading-relaxed; /* Consistent table data size */
   }
 
   .table tbody tr {
@@ -145,17 +203,29 @@
     @apply bg-gray-100 text-gray-800;
   }
 
-  /* Page layout */
+  /* Page layout - standardized typography */
   .page-header {
     @apply mb-6;
   }
 
   .page-title {
-    @apply text-2xl font-semibold text-gray-900 mb-1;
+    @apply text-3xl font-semibold text-gray-900 mb-1 leading-tight;
+    /* Consistent main page titles */
   }
 
   .page-subtitle {
-    @apply text-sm text-gray-600;
+    @apply text-base text-gray-600 leading-relaxed;
+    /* Improved subtitle readability */
+  }
+
+  .section-title {
+    @apply text-xl font-semibold text-gray-800 mb-4 leading-tight;
+    /* Consistent section headings */
+  }
+
+  .subsection-title {
+    @apply text-lg font-medium text-gray-700 mb-3 leading-snug;
+    /* Consistent subsection headings */
   }
 
   /* Loading spinner */
@@ -186,12 +256,50 @@
 }
 
 @layer utilities {
+  /* Typography utilities for consistent sizing */
+  .text-heading-1 {
+    @apply text-3xl font-semibold text-gray-900 tracking-tight leading-tight;
+  }
+
+  .text-heading-2 {
+    @apply text-xl font-semibold text-gray-800 leading-tight;
+  }
+
+  .text-heading-3 {
+    @apply text-lg font-medium text-gray-700 leading-snug;
+  }
+
+  .text-body {
+    @apply text-base leading-relaxed text-gray-900;
+  }
+
+  .text-body-sm {
+    @apply text-sm leading-normal text-gray-700;
+  }
+
+  .text-caption {
+    @apply text-sm text-gray-600 leading-normal;
+  }
+
+  .text-label {
+    @apply text-sm font-medium text-gray-700 leading-normal;
+  }
+
+  /* Button text standards */
+  .text-button {
+    @apply text-sm font-medium leading-normal;
+  }
+
+  .text-button-lg {
+    @apply text-base font-medium leading-normal;
+  }
+
   /* Custom utilities for professional design */
   .glass {
     @apply bg-white/10 backdrop-blur-md border border-white/20;
   }
 
-  /* Scrollbar styling */
+  /* Enhanced scrollbar styling */
   .custom-scrollbar {
     scrollbar-width: thin;
     scrollbar-color: theme('colors.gray.400') theme('colors.gray.100');
@@ -215,7 +323,7 @@
     background: theme('colors.gray.500');
   }
 
-  /* Hover Effects */
+  /* Accessible hover effects */
   .hover-lift {
     @apply transform transition-all duration-300 hover:-translate-y-1 hover:shadow-lg;
   }
@@ -224,8 +332,38 @@
     @apply transform transition-transform duration-300 hover:scale-105;
   }
 
-  /* Focus styles */
+  /* Enhanced focus styles for accessibility - WCAG AA */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2;
+  }
+
+  .focus-ring-inset {
+    @apply focus:outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500;
+  }
+
+  /* Accessible focus for dark backgrounds */
+  .focus-ring-white {
+    @apply focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-blue-500;
+  }
+
+  /* High contrast focus for maximum accessibility */
   .focus-visible:focus {
-    @apply outline-none ring-4 ring-blue-500/30 ring-offset-2;
+    @apply outline-none ring-4 ring-blue-500/50 ring-offset-2;
+  }
+
+  /* Minimum touch targets for mobile accessibility */
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .touch-target-sm {
+    min-height: 36px;
+    min-width: 36px;
+  }
+
+  .touch-target-lg {
+    min-height: 48px;
+    min-width: 48px;
   }
 }

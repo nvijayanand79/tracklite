@@ -300,12 +300,12 @@ const ReportsList: React.FC = () => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredReports.map((report) => (
                     <tr key={report.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{report.id.substring(0, 8)}...</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{report.labtest_id ? report.labtest_id.substring(0, 8) + '...' : 'N/A'}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{report.company}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{report.count_boxes}</td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      <td className="px-6 py-3 whitespace-nowrap text-xs font-medium text-gray-900">{report.id.substring(0, 8)}...</td>
+                      <td className="px-6 py-3 whitespace-nowrap text-xs text-gray-500">{report.labtest_id ? report.labtest_id.substring(0, 8) + '...' : 'N/A'}</td>
+                      <td className="px-6 py-3 whitespace-nowrap text-xs text-gray-500">{report.company}</td>
+                      <td className="px-6 py-3 whitespace-nowrap text-xs text-gray-500">{report.count_boxes}</td>
+                      <td className="px-6 py-3 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
                           report.test_status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
                           report.test_status === 'IN_PROGRESS' ? 'bg-yellow-100 text-yellow-800' :
                           'bg-gray-100 text-gray-800'
@@ -313,8 +313,8 @@ const ReportsList: React.FC = () => {
                           {report.test_status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      <td className="px-6 py-3 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
                           report.final_status === 'APPROVED' ? 'bg-green-100 text-green-800' :
                           report.final_status === 'DRAFT' ? 'bg-gray-100 text-gray-800' :
                           'bg-red-100 text-red-800'
@@ -322,16 +322,16 @@ const ReportsList: React.FC = () => {
                           {report.final_status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-3 whitespace-nowrap text-xs text-gray-500">
                         {new Date(report.created_at).toLocaleDateString()}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <td className="px-6 py-3 whitespace-nowrap text-xs font-medium">
                         <button 
                           onClick={() => navigate(`/reports/${report.id}`)} 
-                          className="inline-flex items-center px-2 py-1 text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded transition-colors"
+                          className="inline-flex items-center px-2 py-1 text-xs font-medium text-blue-600 hover:text-blue-900 hover:bg-blue-50 rounded transition-colors"
                           title="View Report"
                         >
-                          <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                           </svg>

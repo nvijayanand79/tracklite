@@ -145,8 +145,8 @@ export default function ReceiptsForm() {
       <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-2xl mx-auto">
                   <div className="mb-8">
-                    <h2 className="text-3xl font-extrabold text-gray-900">{id ? 'Edit Receipt' : 'New Receipt'}</h2>
-                    <p className="mt-2 text-sm text-gray-600">
+                    <h2 className="text-3xl font-semibold text-gray-900 leading-tight">{id ? 'Edit Receipt' : 'New Receipt'}</h2>
+                    <p className="mt-2 text-base text-gray-600 leading-relaxed">
                       {id ? 'Update receipt details' : 'Create a new receipt for package tracking'}
                     </p>
                   </div>
@@ -168,7 +168,7 @@ export default function ReceiptsForm() {
                 id="receiver_name"
                 type="text"
                 {...register('receiver_name')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-base min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:ring-offset-2"
                 placeholder="Enter receiver name"
               />
               {errors.receiver_name && (
@@ -185,7 +185,7 @@ export default function ReceiptsForm() {
                 id="contact_number"
                 type="tel"
                 {...register('contact_number')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-base min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:ring-offset-2"
                 placeholder="Enter contact number"
               />
               {errors.contact_number && (
@@ -202,7 +202,7 @@ export default function ReceiptsForm() {
                 id="receipt_date"
                 type="date"
                 {...register('receipt_date')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-base min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:ring-offset-2"
               />
               {errors.receipt_date && (
                 <p className="mt-1 text-sm text-red-600">{errors.receipt_date.message}</p>
@@ -218,7 +218,7 @@ export default function ReceiptsForm() {
                 id="branch"
                 type="text"
                 {...register('branch')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-base min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:ring-offset-2"
                 placeholder="Enter branch location"
               />
               {errors.branch && (
@@ -235,7 +235,7 @@ export default function ReceiptsForm() {
                 id="company"
                 type="text"
                 {...register('company')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-base min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:ring-offset-2"
                 placeholder="Enter company name"
               />
               {errors.company && (
@@ -253,7 +253,7 @@ export default function ReceiptsForm() {
                 type="number"
                 min="1"
                 {...register('count_boxes', { valueAsNumber: true })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-base min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:ring-offset-2"
                 placeholder="Number of boxes"
               />
               {errors.count_boxes && (
@@ -270,7 +270,7 @@ export default function ReceiptsForm() {
             <select
               id="receiving_mode"
               {...register('receiving_mode')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm text-base min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:ring-offset-2"
             >
               <option value="PERSON">Person</option>
               <option value="COURIER">Courier</option>
@@ -305,7 +305,7 @@ export default function ReceiptsForm() {
               id="courier_awb"
               type="text"
               {...register('courier_awb')}
-              className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
+              className={`w-full px-3 py-2 border rounded-md shadow-sm text-base min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:ring-offset-2 ${
                 isAwbRequired ? 'border-red-300' : 'border-gray-300'
               }`}
               placeholder="Enter AWB number (required for courier or non-Central forwarding)"
@@ -325,14 +325,14 @@ export default function ReceiptsForm() {
             <button
               type="button"
               onClick={() => navigate('/receipts')}
-              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              className="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 min-h-[44px] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-400"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 min-h-[44px] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
                 <span className="flex items-center">

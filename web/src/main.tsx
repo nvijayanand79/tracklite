@@ -109,6 +109,33 @@ const router = createBrowserRouter([
     ) 
   },
   { 
+    path: '/owner-track', 
+    element: (
+      <ErrorBoundary>
+        <OwnerTrackNew />
+      </ErrorBoundary>
+    ),
+    errorElement: (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">Page Not Found</h1>
+          <p className="text-gray-600 mb-4">The owner tracking page could not be loaded.</p>
+          <a href="/owner-track" className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition">
+            Try Again
+          </a>
+        </div>
+      </div>
+    )
+  },
+  { 
+    path: '/owner-track/*', 
+    element: (
+      <ErrorBoundary>
+        <OwnerTrackNew />
+      </ErrorBoundary>
+    ) 
+  },
+  { 
     path: '/receipts', 
     element: (
       <ProtectedRoute>

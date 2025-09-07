@@ -11,7 +11,14 @@ const updateSchema = z.object({
   communicated_to_accounts: z.boolean(),
 })
 
+const testStatusUpdateSchema = z.object({
+  test_status: z.enum(['PENDING', 'IN_PROGRESS', 'COMPLETED', 'FAILED']),
+  lab_report_status: z.enum(['PENDING', 'DRAFT', 'COMPLETED']),
+  lab_remarks: z.string().optional(),
+})
+
 type UpdateFormData = z.infer<typeof updateSchema>
+type TestStatusUpdateData = z.infer<typeof testStatusUpdateSchema>
 
 interface Report {
   id: string
@@ -24,6 +31,21 @@ interface Report {
   communicated_to_accounts: boolean
   created_at: string
   updated_at: string
+  // Lab test related fields
+  receipt_id: string
+  lab_doc_no: string | null
+  lab_person: string | null
+  test_status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'FAILED'
+  lab_report_status: 'PENDING' | 'DRAFT' | 'COMPLETED'
+  lab_remarks: string | null
+  // Receipt related fields
+  receiver_name: string | null
+  contact_number: string | null
+  branch: string | null
+  company: string | null
+  count_boxes: number | null
+  receiving_mode: string | null
+  receipt_date: string | null
 }
 
 const ReportDetail: React.FC = () => {
@@ -34,6 +56,7 @@ const ReportDetail: React.FC = () => {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [updateLoading, setUpdateLoading] = useState(false)
+  const [testStatusUpdateLoading, setTestStatusUpdateLoading] = useState(false)
   const [approvalLoading, setApprovalLoading] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
 
@@ -44,6 +67,15 @@ const ReportDetail: React.FC = () => {
     formState: { errors, isSubmitting }
   } = useForm<UpdateFormData>({
     resolver: zodResolver(updateSchema)
+  })
+
+  const {
+    register: registerTestStatus,
+    handleSubmit: handleTestStatusSubmit,
+    reset: resetTestStatus,
+    formState: { errors: testStatusErrors, isSubmitting: isTestStatusSubmitting }
+  } = useForm<TestStatusUpdateData>({
+    resolver: zodResolver(testStatusUpdateSchema)
   })
 
   const fetchReport = async () => {
@@ -60,6 +92,13 @@ const ReportDetail: React.FC = () => {
         comm_status: reportData.comm_status,
         comm_channel: reportData.comm_channel,
         communicated_to_accounts: reportData.communicated_to_accounts,
+      })
+      
+      // Reset test status form with current values
+      resetTestStatus({
+        test_status: reportData.test_status || 'PENDING',
+        lab_report_status: reportData.lab_report_status || 'PENDING',
+        lab_remarks: reportData.lab_remarks || '',
       })
       setError('')
     } catch (err: any) {
@@ -109,6 +148,27 @@ const ReportDetail: React.FC = () => {
     }
   }
 
+  const onTestStatusSubmit = async (data: TestStatusUpdateData) => {
+    if (!id || !report) return
+    
+    try {
+      setTestStatusUpdateLoading(true)
+      // Update the labtest via the reports endpoint - we need to create a new endpoint for this
+      await reportsAPI.update(id, { 
+        test_status: data.test_status,
+        lab_report_status: data.lab_report_status,
+        lab_remarks: data.lab_remarks || null
+      })
+      setSuccessMessage('Test status updated successfully!')
+      fetchReport() // Refresh report data
+    } catch (err: any) {
+      setError(err.response?.data?.detail || 'Failed to update test status')
+      console.error('Error updating test status:', err)
+    } finally {
+      setTestStatusUpdateLoading(false)
+    }
+  }
+
   const getStatusBadgeClass = (status: string) => {
     switch (status) {
       case 'DRAFT':
@@ -131,6 +191,34 @@ const ReportDetail: React.FC = () => {
       case 'DISPATCHED':
         return 'bg-blue-100 text-blue-800'
       case 'DELIVERED':
+        return 'bg-green-100 text-green-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const getTestStatusBadgeClass = (status: string) => {
+    switch (status) {
+      case 'PENDING':
+        return 'bg-yellow-100 text-yellow-800'
+      case 'IN_PROGRESS':
+        return 'bg-blue-100 text-blue-800'
+      case 'COMPLETED':
+        return 'bg-green-100 text-green-800'
+      case 'FAILED':
+        return 'bg-red-100 text-red-800'
+      default:
+        return 'bg-gray-100 text-gray-800'
+    }
+  }
+
+  const getLabReportStatusBadgeClass = (status: string) => {
+    switch (status) {
+      case 'PENDING':
+        return 'bg-gray-100 text-gray-800'
+      case 'DRAFT':
+        return 'bg-yellow-100 text-yellow-800'
+      case 'COMPLETED':
         return 'bg-green-100 text-green-800'
       default:
         return 'bg-gray-100 text-gray-800'
@@ -461,6 +549,41 @@ const ReportDetail: React.FC = () => {
         </dl>
       </div>
 
+      {/* Lab Test Information */}
+      <div className="bg-white shadow rounded-lg p-6">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Lab Test Information</h2>
+        <dl className="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+          <div>
+            <dt className="text-sm font-medium text-gray-500">Test Status</dt>
+            <dd className="mt-1">
+              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getTestStatusBadgeClass(report.test_status || 'PENDING')}`}>
+                {(report.test_status || 'PENDING').replace('_', ' ')}
+              </span>
+            </dd>
+          </div>
+          <div>
+            <dt className="text-sm font-medium text-gray-500">Lab Report Status</dt>
+            <dd className="mt-1">
+              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${getLabReportStatusBadgeClass(report.lab_report_status || 'PENDING')}`}>
+                {(report.lab_report_status || 'PENDING').replace('_', ' ')}
+              </span>
+            </dd>
+          </div>
+          <div>
+            <dt className="text-sm font-medium text-gray-500">Lab Document No</dt>
+            <dd className="mt-1 text-sm text-gray-900">{report.lab_doc_no || 'Not assigned'}</dd>
+          </div>
+          <div>
+            <dt className="text-sm font-medium text-gray-500">Lab Person</dt>
+            <dd className="mt-1 text-sm text-gray-900">{report.lab_person || 'Not assigned'}</dd>
+          </div>
+          <div className="sm:col-span-2">
+            <dt className="text-sm font-medium text-gray-500">Lab Remarks</dt>
+            <dd className="mt-1 text-sm text-gray-900">{report.lab_remarks || 'No remarks'}</dd>
+          </div>
+        </dl>
+      </div>
+
       {/* Approval Action */}
       {report.final_status !== 'APPROVED' && (
         <div className="bg-white shadow rounded-lg p-6">
@@ -538,6 +661,74 @@ const ReportDetail: React.FC = () => {
               className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium disabled:opacity-50"
             >
               {isSubmitting || updateLoading ? 'Updating...' : 'Update Communication'}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      {/* Update Test Status */}
+      <div className="bg-white shadow rounded-lg p-6">
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">Update Test Status</h2>
+        <form onSubmit={handleTestStatusSubmit(onTestStatusSubmit)} className="space-y-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div>
+              <label htmlFor="test_status" className="block text-sm font-medium text-gray-700">
+                Test Status
+              </label>
+              <select
+                {...registerTestStatus('test_status')}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              >
+                <option value="PENDING">Pending</option>
+                <option value="IN_PROGRESS">In Progress</option>
+                <option value="COMPLETED">Completed</option>
+                <option value="FAILED">Failed</option>
+              </select>
+              {testStatusErrors.test_status && (
+                <p className="mt-1 text-sm text-red-600">{testStatusErrors.test_status.message}</p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="lab_report_status" className="block text-sm font-medium text-gray-700">
+                Lab Report Status
+              </label>
+              <select
+                {...registerTestStatus('lab_report_status')}
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              >
+                <option value="PENDING">Pending</option>
+                <option value="DRAFT">Draft</option>
+                <option value="COMPLETED">Completed</option>
+              </select>
+              {testStatusErrors.lab_report_status && (
+                <p className="mt-1 text-sm text-red-600">{testStatusErrors.lab_report_status.message}</p>
+              )}
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor="lab_remarks" className="block text-sm font-medium text-gray-700">
+              Lab Remarks
+            </label>
+            <textarea
+              {...registerTestStatus('lab_remarks')}
+              rows={3}
+              className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              placeholder="Enter any remarks about the test..."
+            />
+            {testStatusErrors.lab_remarks && (
+              <p className="mt-1 text-sm text-red-600">{testStatusErrors.lab_remarks.message}</p>
+            )}
+          </div>
+
+          <div className="flex justify-end">
+            <button
+              type="submit"
+              disabled={isTestStatusSubmitting || testStatusUpdateLoading}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md font-medium disabled:opacity-50"
+            >
+              {isTestStatusSubmitting || testStatusUpdateLoading ? 'Updating...' : 'Update Test Status'}
             </button>
           </div>
         </form>

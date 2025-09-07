@@ -106,8 +106,8 @@ const LabTestForm: React.FC = () => {
       <NavigationBar />
       <div className="p-6 max-w-2xl mx-auto">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900">Create New Lab Test</h1>
-        <p className="text-gray-600 mt-2">Link a new lab test to an existing receipt</p>
+        <h1 className="text-3xl font-semibold text-gray-900 leading-tight mb-2">Create New Lab Test</h1>
+        <p className="text-base text-gray-600 leading-relaxed">Link a new lab test to an existing receipt</p>
       </div>
 
       {error && (
@@ -124,7 +124,7 @@ const LabTestForm: React.FC = () => {
           </label>
           <select
             {...register('receipt_id')}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-base min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:ring-offset-2"
             disabled={loading || !Array.isArray(receipts) || receipts.length === 0}
           >
             <option value="">
@@ -167,7 +167,7 @@ const LabTestForm: React.FC = () => {
           <input
             type="text"
             {...register('lab_doc_no')}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-base min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:ring-offset-2"
             placeholder="Enter lab document number"
           />
           {errors.lab_doc_no && (
@@ -186,7 +186,7 @@ const LabTestForm: React.FC = () => {
           <input
             type="text"
             {...register('lab_person')}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-base min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:ring-offset-2"
             placeholder="Enter lab person name"
           />
           {errors.lab_person && (
@@ -201,7 +201,7 @@ const LabTestForm: React.FC = () => {
           </label>
           <select
             {...register('test_status')}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-base min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:ring-offset-2"
           >
             <option value="IN_PROGRESS">In Progress</option>
             <option value="COMPLETED">Completed</option>
@@ -218,7 +218,7 @@ const LabTestForm: React.FC = () => {
           </label>
           <select
             {...register('lab_report_status')}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-base min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:ring-offset-2"
           >
             <option value="NOT_STARTED">Not Started</option>
             <option value="DRAFT">Draft</option>
@@ -238,7 +238,7 @@ const LabTestForm: React.FC = () => {
           <textarea
             {...register('remarks')}
             rows={4}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-base min-h-[88px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:ring-offset-2"
             placeholder="Optional remarks or notes..."
           />
           {errors.remarks && (
@@ -251,14 +251,14 @@ const LabTestForm: React.FC = () => {
           <button
             type="submit"
             disabled={submitting || loading}
-            className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             {submitting ? 'Creating...' : 'Create Lab Test'}
           </button>
           <button
             type="button"
             onClick={() => navigate('/lab-tests')}
-            className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors"
+            className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400 transition-colors text-sm font-medium min-h-[44px] focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
           >
             Cancel
           </button>

@@ -94,10 +94,10 @@ const ReportForm: React.FC = () => {
       <NavigationBar />
       <div className="max-w-2xl mx-auto space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">Create Report</h1>
+        <h1 className="text-3xl font-semibold text-gray-900 leading-tight">Create Report</h1>
         <button
           onClick={() => navigate('/reports')}
-          className="text-gray-600 hover:text-gray-900"
+          className="text-gray-600 hover:text-gray-900 text-sm font-medium"
         >
           ← Back to Reports
         </button>
@@ -119,7 +119,7 @@ const ReportForm: React.FC = () => {
             <select
               id="labtest_id"
               {...register('labtest_id')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-base min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:ring-offset-2"
               disabled={!Array.isArray(labTests) || labTests.length === 0}
             >
               <option value="">
@@ -150,7 +150,7 @@ const ReportForm: React.FC = () => {
                 {...register('retesting_requested', {
                   setValueAs: (value) => value ? 1 : 0
                 })}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4"
               />
               <span className="ml-2 text-sm text-gray-700">Retesting Requested</span>
             </label>
@@ -164,7 +164,7 @@ const ReportForm: React.FC = () => {
             <select
               id="final_status"
               {...register('final_status')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-base min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:ring-offset-2"
             >
               <option value="DRAFT">Draft</option>
               <option value="APPROVED">Approved</option>
@@ -184,7 +184,7 @@ const ReportForm: React.FC = () => {
                 type="text"
                 id="approved_by"
                 {...register('approved_by')}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md text-base min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:ring-offset-2"
                 placeholder="Enter approver name"
               />
               {errors.approved_by && (
@@ -201,7 +201,7 @@ const ReportForm: React.FC = () => {
             <select
               id="comm_status"
               {...register('comm_status')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-base min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:ring-offset-2"
             >
               <option value="PENDING">Pending</option>
               <option value="DELIVERED">Delivered</option>
@@ -219,7 +219,7 @@ const ReportForm: React.FC = () => {
             <select
               id="comm_channel"
               {...register('comm_channel')}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-md text-base min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:ring-offset-2"
             >
               <option value="EMAIL">Email</option>
               <option value="SMS">SMS</option>
@@ -238,7 +238,7 @@ const ReportForm: React.FC = () => {
                 {...register('communicated_to_accounts', {
                   setValueAs: (value) => value ? 1 : 0
                 })}
-                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4"
               />
               <span className="ml-2 text-sm text-gray-700">Communicated to Accounts</span>
             </label>
@@ -249,14 +249,14 @@ const ReportForm: React.FC = () => {
             <button
               type="button"
               onClick={() => navigate('/reports')}
-              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50"
+              className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 text-sm font-medium min-h-[44px] focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting || loading}
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 text-sm font-medium min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               {isSubmitting || loading ? 'Creating...' : 'Create Report'}
             </button>

@@ -277,12 +277,12 @@ const ReceiptsList: React.FC = () => {
           <div className="mb-6">
             <div className="flex items-center justify-between">
               <div>
-                <h1 className="text-2xl font-semibold text-gray-900">Sample Receipts</h1>
-                <p className="text-gray-600">Manage laboratory sample receipts</p>
+                <h1 className="text-3xl font-semibold text-gray-900 leading-tight mb-1">Sample Receipts</h1>
+                <p className="text-base text-gray-600 leading-relaxed">Manage laboratory sample receipts</p>
               </div>
               <button
                 onClick={() => navigate('/receipts/new')}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors min-h-[44px] focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
@@ -419,27 +419,27 @@ const ReceiptsList: React.FC = () => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredReceipts.map((receipt) => (
                     <tr key={receipt.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
+                      <td className="px-6 py-3 whitespace-nowrap">
                         <div>
-                          <div className="text-sm font-medium text-gray-900">
+                          <div className="text-xs font-medium text-gray-900">
                             {receipt.receiver_name}
                           </div>
-                          <div className="text-sm text-gray-500">
+                          <div className="text-xs text-gray-500">
                             {receipt.contact_number}
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-3 whitespace-nowrap text-xs text-gray-500">
                         {formatDate(receipt.receipt_date)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-3 whitespace-nowrap text-xs text-gray-500">
                         {receipt.branch}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      <td className="px-6 py-3 whitespace-nowrap text-xs text-gray-900">
                         {Number(receipt.count_boxes ?? 0)}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                      <td className="px-6 py-3 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
                           receipt.receiving_mode === 'COURIER' ? 'bg-orange-100 text-orange-800' :
                           receipt.receiving_mode === 'COLLECTION' ? 'bg-blue-100 text-blue-800' :
                           receipt.receiving_mode === 'PERSON' ? 'bg-green-100 text-green-800' :
@@ -448,14 +448,14 @@ const ReceiptsList: React.FC = () => {
                           {receipt.receiving_mode}
                         </span>
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <td className="px-6 py-3 whitespace-nowrap text-xs text-gray-500">
                         {receipt.forward_to_central === 1 ? (
                           <span className="text-green-600">Yes</span>
                         ) : (
                           <span className="text-gray-400">No</span>
                         )}
                       </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                      <td className="px-6 py-3 whitespace-nowrap text-xs font-medium">
                         <div className="flex items-center space-x-2">
                           <button
                             onClick={() => navigate(`/receipts/${receipt.id}`)}
