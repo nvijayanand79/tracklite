@@ -101,28 +101,39 @@ const LoginPage: React.FC = () => {
       setIsLoading(true)
       setError(null)
       
+      console.log('🔐 Login attempt:', { email: data.email, password: '***' })
+      console.log('🔗 API Base URL:', (api as any).defaults.baseURL)
+      
       const response = await api.post('/auth/login', {
         email: data.email,
         password: data.password,
       })
       
+      console.log('✅ Login response:', response.data)
+      
       const { access_token } = response.data
       
       if (access_token) {
+        console.log('✅ Token received, storing:', access_token.substring(0, 20) + '...')
         authUtils.setToken(access_token)
         
         // Redirect to intended page or dashboard
         const from = (location.state as any)?.from?.pathname || '/'
         navigate(from, { replace: true })
       } else {
+        console.error('❌ No token in response')
         setError('Login failed: No token received')
       }
     } catch (err: any) {
-      console.error('Login error:', err)
+      console.error('❌ Login error:', err)
+      console.error('❌ Error response:', err.response)
+      console.error('❌ Error data:', err.response?.data)
+      console.error('❌ Error status:', err.response?.status)
+      
       if (err.response?.status === 401) {
         setError('Invalid email or password')
       } else {
-        setError(err.response?.data?.detail || 'Login failed. Please try again.')
+        setError(err.response?.data?.detail || err.message || 'Login failed. Please try again.')
       }
     } finally {
       setIsLoading(false)

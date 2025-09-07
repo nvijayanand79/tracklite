@@ -1,0 +1,12 @@
+{
+  "name": "tracelite-monorepo",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"cd web && npm run dev\" \"cd web/server && npm run dev\"",
+    "start": "cd web/server && npm start",
+    "build": "cd web && npm run build && cd web/server && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}

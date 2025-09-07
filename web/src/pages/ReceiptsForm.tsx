@@ -10,28 +10,31 @@ import { api } from '../services/api'
 const receiptSchema = z.object({
   receiver_name: z.string().min(1, 'Receiver name is required').max(255, 'Name too long'),
   contact_number: z.string().min(10, 'Contact number must be at least 10 digits').max(15, 'Contact number too long'),
-  date: z.string().min(1, 'Date is required'),
+  receipt_date: z.string().min(1, 'Date is required'),
   branch: z.string().min(1, 'Branch is required').max(100, 'Branch name too long'),
   company: z.string().min(1, 'Company is required').max(255, 'Company name too long'),
-  count_of_boxes: z.number().min(1, 'Count must be at least 1'),
+  count_boxes: z.number().min(1, 'Count must be at least 1'),
   receiving_mode: z.enum(['PERSON', 'COURIER'], {
     errorMap: () => ({ message: 'Please select a receiving mode' })
   }),
-  forward_to_chennai: z.boolean(),
-  awb_no: z.string().optional()
+  forward_to_central: z.number().min(0).max(1),
+  courier_awb: z.string().optional()
 }).refine((data) => {
   // Business rule validation
+  const branchName = typeof data.branch === 'string' ? data.branch : '';
+  const forwardFlag = Number(data.forward_to_central ?? 0);
+
   const needsAwb = 
     data.receiving_mode === 'COURIER' || 
-    (data.branch.toLowerCase() !== 'chennai' && data.forward_to_chennai)
-  
-  if (needsAwb && (!data.awb_no || data.awb_no.trim() === '')) {
+    (branchName && branchName.toLowerCase() !== 'central' && forwardFlag === 1);
+
+  if (needsAwb && (!data.courier_awb || data.courier_awb.trim() === '')) {
     return false
   }
   return true
 }, {
-  message: 'AWB number is required when receiving mode is COURIER or when forwarding to Chennai from non-Chennai branch',
-  path: ['awb_no']
+  message: 'AWB number is required when receiving mode is COURIER or when forwarding to Central from non-Central branch',
+  path: ['courier_awb']
 })
 
 
@@ -51,21 +54,21 @@ export default function ReceiptsForm() {
   } = useForm<ReceiptFormData>({
     resolver: zodResolver(receiptSchema),
     defaultValues: {
-      date: new Date().toISOString().split('T')[0], // Today's date
+      receipt_date: new Date().toISOString().split('T')[0], // Today's date
       receiving_mode: 'PERSON',
-      forward_to_chennai: false,
-      count_of_boxes: 1
+      forward_to_central: 0,
+      count_boxes: 1
     }
   })
 
   // Watch form values for conditional logic
   const receivingMode = watch('receiving_mode')
   const branch = watch('branch')
-  const forwardToChennai = watch('forward_to_chennai')
+  const forwardToCentral = watch('forward_to_central')
   
   // Determine if AWB is required
   const isAwbRequired = receivingMode === 'COURIER' || 
-    (branch && branch.toLowerCase() !== 'chennai' && forwardToChennai)
+    (branch && branch.toLowerCase() !== 'central' && forwardToCentral === 1)
 
   const onSubmit = async (data: ReceiptFormData) => {
     try {
@@ -74,9 +77,9 @@ export default function ReceiptsForm() {
       console.log('Edit mode:', !!id)
       
       if (id) {
-        console.log('Making PATCH request to:', `/receipts/${id}`)
-        const response = await api.patch(`/receipts/${id}`, data)
-        console.log('PATCH response:', response.data)
+        console.log('Making PUT request to:', `/receipts/${id}`)
+        const response = await api.put(`/receipts/${id}`, data)
+        console.log('PUT response:', response.data)
       } else {
         console.log('Making POST request to: /receipts')
         const response = await api.post('/receipts', data)
@@ -120,13 +123,13 @@ export default function ReceiptsForm() {
         // Populate form values
         setValue('receiver_name', r.receiver_name)
         setValue('contact_number', r.contact_number)
-        setValue('date', r.date)
+        setValue('receipt_date', r.receipt_date)
         setValue('branch', r.branch)
         setValue('company', r.company)
-        setValue('count_of_boxes', r.count_of_boxes)
+        setValue('count_boxes', r.count_boxes)
         setValue('receiving_mode', r.receiving_mode)
-        setValue('forward_to_chennai', r.forward_to_chennai)
-        setValue('awb_no', r.awb_no ?? '')
+        setValue('forward_to_central', Number(r.forward_to_central ?? 0))
+        setValue('courier_awb', r.courier_awb ?? '')
       } catch (e) {
         console.error('Failed to load receipt for edit', e)
         setServerError('Failed to load receipt for edit')
@@ -192,17 +195,17 @@ export default function ReceiptsForm() {
 
             {/* Date */}
             <div>
-              <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="receipt_date" className="block text-sm font-medium text-gray-700 mb-1">
                 Date *
               </label>
               <input
-                id="date"
+                id="receipt_date"
                 type="date"
-                {...register('date')}
+                {...register('receipt_date')}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               />
-              {errors.date && (
-                <p className="mt-1 text-sm text-red-600">{errors.date.message}</p>
+              {errors.receipt_date && (
+                <p className="mt-1 text-sm text-red-600">{errors.receipt_date.message}</p>
               )}
             </div>
 
@@ -242,19 +245,19 @@ export default function ReceiptsForm() {
 
             {/* Count of Boxes */}
             <div>
-              <label htmlFor="count_of_boxes" className="block text-sm font-medium text-gray-700 mb-1">
+              <label htmlFor="count_boxes" className="block text-sm font-medium text-gray-700 mb-1">
                 Count of Boxes *
               </label>
               <input
-                id="count_of_boxes"
+                id="count_boxes"
                 type="number"
                 min="1"
-                {...register('count_of_boxes', { valueAsNumber: true })}
+                {...register('count_boxes', { valueAsNumber: true })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 placeholder="Number of boxes"
               />
-              {errors.count_of_boxes && (
-                <p className="mt-1 text-sm text-red-600">{errors.count_of_boxes.message}</p>
+              {errors.count_boxes && (
+                <p className="mt-1 text-sm text-red-600">{errors.count_boxes.message}</p>
               )}
             </div>
           </div>
@@ -277,35 +280,38 @@ export default function ReceiptsForm() {
             )}
           </div>
 
-          {/* Forward to Chennai */}
+          {/* Forward to Central */}
           <div className="flex items-center">
             <input
-              id="forward_to_chennai"
+              id="forward_to_central"
               type="checkbox"
-              {...register('forward_to_chennai')}
+              checked={forwardToCentral === 1}
+              onChange={(e) => {
+                setValue('forward_to_central', e.target.checked ? 1 : 0);
+              }}
               className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
             />
-            <label htmlFor="forward_to_chennai" className="ml-2 block text-sm text-gray-900">
-              Forward to Chennai
+            <label htmlFor="forward_to_central" className="ml-2 block text-sm text-gray-900">
+              Forward to Central
             </label>
           </div>
 
           {/* Courier AWB */}
           <div>
-            <label htmlFor="awb_no" className="block text-sm font-medium text-gray-700 mb-1">
+            <label htmlFor="courier_awb" className="block text-sm font-medium text-gray-700 mb-1">
               Courier AWB Number {isAwbRequired && <span className="text-red-500">*</span>}
             </label>
             <input
-              id="awb_no"
+              id="courier_awb"
               type="text"
-              {...register('awb_no')}
+              {...register('courier_awb')}
               className={`w-full px-3 py-2 border rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent ${
                 isAwbRequired ? 'border-red-300' : 'border-gray-300'
               }`}
-              placeholder="Enter AWB number (required for courier or non-Chennai forwarding)"
+              placeholder="Enter AWB number (required for courier or non-Central forwarding)"
             />
-            {errors.awb_no && (
-              <p className="mt-1 text-sm text-red-600">{errors.awb_no.message}</p>
+            {errors.courier_awb && (
+              <p className="mt-1 text-sm text-red-600">{errors.courier_awb.message}</p>
             )}
             {isAwbRequired && (
               <p className="mt-1 text-sm text-blue-600">

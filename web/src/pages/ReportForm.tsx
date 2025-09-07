@@ -8,12 +8,12 @@ import { reportsAPI, api } from '../services/api'
 
 const reportSchema = z.object({
   labtest_id: z.string().min(1, 'Lab test is required'),
-  retesting_requested: z.boolean(),
-  final_status: z.enum(['DRAFT', 'READY_FOR_APPROVAL', 'APPROVED', 'REJECTED']),
+  retesting_requested: z.number().min(0).max(1),
+  final_status: z.enum(['DRAFT', 'APPROVED']),
   approved_by: z.string().optional(),
-  comm_status: z.enum(['PENDING', 'DISPATCHED', 'DELIVERED']),
-  comm_channel: z.enum(['COURIER', 'IN_PERSON', 'EMAIL']),
-  communicated_to_accounts: z.boolean(),
+  comm_status: z.enum(['PENDING', 'DELIVERED']),
+  comm_channel: z.enum(['EMAIL', 'SMS', 'WHATSAPP']),
+  communicated_to_accounts: z.number().min(0).max(1),
 }).refine((data) => {
   // If final_status is APPROVED, approved_by must be provided
   if (data.final_status === 'APPROVED' && !data.approved_by) {
@@ -48,11 +48,11 @@ const ReportForm: React.FC = () => {
   } = useForm<ReportFormData>({
     resolver: zodResolver(reportSchema),
     defaultValues: {
-      retesting_requested: false,
+      retesting_requested: 0,
       final_status: 'DRAFT',
       comm_status: 'PENDING',
       comm_channel: 'EMAIL',
-      communicated_to_accounts: false,
+      communicated_to_accounts: 0,
     }
   })
 
@@ -137,7 +137,9 @@ const ReportForm: React.FC = () => {
             <label className="flex items-center">
               <input
                 type="checkbox"
-                {...register('retesting_requested')}
+                {...register('retesting_requested', {
+                  setValueAs: (value) => value ? 1 : 0
+                })}
                 className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <span className="ml-2 text-sm text-gray-700">Retesting Requested</span>
@@ -155,9 +157,7 @@ const ReportForm: React.FC = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="DRAFT">Draft</option>
-              <option value="READY_FOR_APPROVAL">Ready for Approval</option>
               <option value="APPROVED">Approved</option>
-              <option value="REJECTED">Rejected</option>
             </select>
             {errors.final_status && (
               <p className="mt-1 text-sm text-red-600">{errors.final_status.message}</p>
@@ -194,7 +194,6 @@ const ReportForm: React.FC = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="PENDING">Pending</option>
-              <option value="DISPATCHED">Dispatched</option>
               <option value="DELIVERED">Delivered</option>
             </select>
             {errors.comm_status && (
@@ -213,8 +212,8 @@ const ReportForm: React.FC = () => {
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="EMAIL">Email</option>
-              <option value="COURIER">Courier</option>
-              <option value="IN_PERSON">In Person</option>
+              <option value="SMS">SMS</option>
+              <option value="WHATSAPP">WhatsApp</option>
             </select>
             {errors.comm_channel && (
               <p className="mt-1 text-sm text-red-600">{errors.comm_channel.message}</p>
@@ -226,7 +225,9 @@ const ReportForm: React.FC = () => {
             <label className="flex items-center">
               <input
                 type="checkbox"
-                {...register('communicated_to_accounts')}
+                {...register('communicated_to_accounts', {
+                  setValueAs: (value) => value ? 1 : 0
+                })}
                 className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
               />
               <span className="ml-2 text-sm text-gray-700">Communicated to Accounts</span>

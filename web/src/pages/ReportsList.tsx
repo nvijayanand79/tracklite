@@ -3,16 +3,33 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { authUtils } from '../utils/auth';
 import { reportsAPI } from '../services/api';
 
-// Define types for Report
+// Define types for Report (matching the enhanced API response)
 interface Report {
   id: string;
-  lab_test_id: string;
-  report_data: string;
-  status: 'DRAFT' | 'IN_PROGRESS' | 'COMPLETED' | 'REVIEWED';
-  generated_at?: string;
-  reviewed_at?: string;
+  labtest_id: string;
+  retesting_requested: number;
+  final_status: 'DRAFT' | 'APPROVED' | 'REJECTED';
+  approved_by?: string;
+  comm_status: 'PENDING' | 'DELIVERED';
+  comm_channel: 'EMAIL' | 'SMS' | 'WHATSAPP';
+  communicated_to_accounts: number;
   created_at: string;
   updated_at: string;
+  // Joined lab test data
+  receipt_id: string;
+  lab_doc_no: string;
+  lab_person: string;
+  test_status: 'IN_PROGRESS' | 'COMPLETED';
+  lab_report_status: 'DRAFT' | 'READY' | 'SIGNED_OFF';
+  lab_remarks: string;
+  // Joined receipt data
+  receiver_name: string;
+  contact_number: string;
+  branch: string;
+  company: string;
+  count_boxes: number;
+  receiving_mode: string;
+  receipt_date: string;
 }
 
 const ReportsList: React.FC = () => {
@@ -34,7 +51,8 @@ const ReportsList: React.FC = () => {
       setError(null);
       
       const response = await reportsAPI.list();
-      setReports(response.data);
+      // API returns {value: [...], Count: number} structure
+      setReports(response.data.value || response.data);
       
     } catch (err: any) {
       console.error('Error fetching reports:', err);
@@ -50,7 +68,13 @@ const ReportsList: React.FC = () => {
 
   const filteredReports = statusFilter === 'all' 
     ? reports 
-    : reports.filter(report => report.status === statusFilter);
+    : reports.filter(report => {
+        // Map the filter values to actual field values
+        if (statusFilter === 'DRAFT') return report.final_status === 'DRAFT';
+        if (statusFilter === 'COMPLETED') return report.test_status === 'COMPLETED';
+        if (statusFilter === 'IN_PROGRESS') return report.test_status === 'IN_PROGRESS';
+        return false;
+      });
 
   if (loading) {
     return (
@@ -200,7 +224,7 @@ const ReportsList: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-gray-600">Completed</p>
-                  <p className="text-xl font-semibold text-gray-900">{reports.filter(r => r.status === 'COMPLETED').length}</p>
+                  <p className="text-xl font-semibold text-gray-900">{reports.filter(r => r.test_status === 'COMPLETED').length}</p>
                 </div>
                 <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
                   <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -214,7 +238,7 @@ const ReportsList: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-gray-600">In Progress</p>
-                  <p className="text-xl font-semibold text-gray-900">{reports.filter(r => r.status === 'IN_PROGRESS').length}</p>
+                  <p className="text-xl font-semibold text-gray-900">{reports.filter(r => r.test_status === 'IN_PROGRESS').length}</p>
                 </div>
                 <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
                   <svg className="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -228,7 +252,7 @@ const ReportsList: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-gray-600">Draft</p>
-                  <p className="text-xl font-semibold text-gray-900">{reports.filter(r => r.status === 'DRAFT').length}</p>
+                  <p className="text-xl font-semibold text-gray-900">{reports.filter(r => r.final_status === 'DRAFT').length}</p>
                 </div>
                 <div className="w-8 h-8 bg-gray-100 rounded-lg flex items-center justify-center">
                   <svg className="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -248,7 +272,6 @@ const ReportsList: React.FC = () => {
                 <option value="DRAFT">Draft</option>
                 <option value="IN_PROGRESS">In Progress</option>
                 <option value="COMPLETED">Completed</option>
-                <option value="REVIEWED">Reviewed</option>
               </select>
               <span className="text-sm text-gray-500">{filteredReports.length} of {reports.length} reports</span>
             </div>
@@ -266,32 +289,41 @@ const ReportsList: React.FC = () => {
                   <tr>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Report ID</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lab Test ID</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Generated At</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Company</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Boxes</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Test Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Final Status</th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredReports.map((report) => (
                     <tr key={report.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{report.id}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{report.lab_test_id}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{report.id.substring(0, 8)}...</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{report.labtest_id ? report.labtest_id.substring(0, 8) + '...' : 'N/A'}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{report.company}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{report.count_boxes}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          report.status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
-                          report.status === 'REVIEWED' ? 'bg-purple-100 text-purple-800' :
-                          report.status === 'IN_PROGRESS' ? 'bg-yellow-100 text-yellow-800' :
+                          report.test_status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
+                          report.test_status === 'IN_PROGRESS' ? 'bg-yellow-100 text-yellow-800' :
                           'bg-gray-100 text-gray-800'
                         }`}>
-                          {report.status}
+                          {report.test_status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          report.final_status === 'APPROVED' ? 'bg-green-100 text-green-800' :
+                          report.final_status === 'DRAFT' ? 'bg-gray-100 text-gray-800' :
+                          'bg-red-100 text-red-800'
+                        }`}>
+                          {report.final_status}
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {report.generated_at ? new Date(report.generated_at).toLocaleDateString() : 'Not generated'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(report.updated_at).toLocaleDateString()}
+                        {new Date(report.created_at).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button 

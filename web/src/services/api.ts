@@ -44,9 +44,9 @@ api.interceptors.request.use(
     }
 
     const token = getToken()
+    console.log('API: Token found:', !!token)
     if (token) {
       console.log('API: Adding Authorization header with token:', token.substring(0, 20) + '...')
-      console.log('API: Full token:', token)
       config.headers.Authorization = `Bearer ${token}`
     } else {
       console.log('API: No token found in localStorage or cookies')

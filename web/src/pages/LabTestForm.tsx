@@ -15,7 +15,7 @@ const labTestSchema = z.object({
   lab_person: z.string()
     .min(1, 'Lab person is required')
     .max(100, 'Lab person name must be 100 characters or less'),
-  test_status: z.enum(['QUEUED', 'IN_PROGRESS', 'COMPLETED', 'FAILED', 'NEEDS_RETEST', 'ON_HOLD']),
+  test_status: z.enum(['IN_PROGRESS', 'COMPLETED']),
   lab_report_status: z.enum(['NOT_STARTED', 'DRAFT', 'READY', 'SIGNED_OFF']),
   remarks: z.string().max(500, 'Remarks must be 500 characters or less').optional()
 });
@@ -46,7 +46,7 @@ const LabTestForm: React.FC = () => {
   } = useForm<LabTestFormData>({
     resolver: zodResolver(labTestSchema),
     defaultValues: {
-      test_status: 'QUEUED',
+      test_status: 'IN_PROGRESS',
       lab_report_status: 'NOT_STARTED'
     }
   });
@@ -192,12 +192,8 @@ const LabTestForm: React.FC = () => {
             {...register('test_status')}
             className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
-            <option value="QUEUED">Queued</option>
             <option value="IN_PROGRESS">In Progress</option>
             <option value="COMPLETED">Completed</option>
-            <option value="FAILED">Failed</option>
-            <option value="NEEDS_RETEST">Needs Retest</option>
-            <option value="ON_HOLD">On Hold</option>
           </select>
           {errors.test_status && (
             <p className="mt-1 text-sm text-red-600">{errors.test_status.message}</p>

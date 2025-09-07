@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import NavigationBar from '../components/NavigationBar'
 import { api } from '../services/api';
 
 interface Receipt {
   id: string;
   receiver_name: string;
   contact_number: string;
-  date: string;
+  receipt_date: string;
   branch: string;
   company: string;
-  count_of_boxes: number;
+  // new schema fields
+  count_boxes: number;
   receiving_mode: string;
-  forward_to_chennai: boolean;
-  awb_no?: string;
-  tracking_number?: string;
+  forward_to_central: number;
+  courier_awb?: string | null;
+  tracking_number?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -38,7 +40,17 @@ const ReceiptDetail: React.FC = () => {
       setError(null);
       
       const response = await api.get(`/receipts/${id}`);
-      setReceipt(response.data);
+      // server returns receipt with lab_tests array mixed in
+      const data = response.data;
+      // normalize field names to this component's Receipt interface
+      const normalized = {
+        ...data,
+        receipt_date: data.receipt_date || data.date,
+        count_boxes: Number(data.count_boxes ?? data.count_of_boxes ?? 0),
+        forward_to_central: data.forward_to_central ?? data.forward_to_chennai ? 1 : 0,
+        courier_awb: data.courier_awb ?? data.awb_no ?? null,
+      };
+      setReceipt(normalized as any);
       
     } catch (err: any) {
       console.error('Error fetching receipt:', err);
@@ -203,6 +215,7 @@ const ReceiptDetail: React.FC = () => {
 
         {/* Main Content */}
         <div className="flex-1 ml-16">
+          <NavigationBar />
           <div className="max-w-7xl mx-auto px-4 py-6">
             <div className="max-w-2xl mx-auto">
               <div className="bg-red-50 border border-red-200 rounded-md p-4">
@@ -387,7 +400,7 @@ const ReceiptDetail: React.FC = () => {
           <div className="flex justify-between items-center mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Receipt Details</h1>
-              <p className="text-sm text-gray-600">Tracking Number: {receipt.tracking_number || receipt.awb_no || '—'}</p>
+                    <p className="text-sm text-gray-600">Tracking Number: {receipt.tracking_number || receipt.courier_awb || '—'}</p>
             </div>
             <div className="flex gap-2">
               <button
@@ -423,7 +436,7 @@ const ReceiptDetail: React.FC = () => {
                   </div>
                   <div>
                     <dt className="text-sm font-medium text-gray-700">Date</dt>
-                    <dd className="text-sm text-gray-900">{new Date(receipt.date).toLocaleDateString()}</dd>
+                    <dd className="text-sm text-gray-900">{receipt.receipt_date ? new Date(receipt.receipt_date).toLocaleDateString() : '—'}</dd>
                   </div>
                   <div>
                     <dt className="text-sm font-medium text-gray-700">Branch</dt>
@@ -441,11 +454,11 @@ const ReceiptDetail: React.FC = () => {
                 <dl className="space-y-2">
                   <div>
                     <dt className="text-sm font-medium text-gray-700">Number of Boxes</dt>
-                    <dd className="text-sm text-gray-900">{receipt.count_of_boxes}</dd>
+                    <dd className="text-sm text-gray-900">{Number(receipt.count_boxes ?? 0)}</dd>
                   </div>
                   <div>
                     <dt className="text-sm font-medium text-gray-700">Receiving Mode</dt>
-                    <dd className="text-sm text-gray-900">
+                      <dd className="text-sm text-gray-900">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
                         receipt.receiving_mode === 'COURIER' 
                           ? 'bg-blue-100 text-blue-800' 
@@ -457,20 +470,20 @@ const ReceiptDetail: React.FC = () => {
                   </div>
                   <div>
                     <dt className="text-sm font-medium text-gray-700">Forward to Chennai</dt>
-                    <dd className="text-sm text-gray-900">
+                      <dd className="text-sm text-gray-900">
                       <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        receipt.forward_to_chennai 
+                        receipt.forward_to_central === 1
                           ? 'bg-yellow-100 text-yellow-800' 
                           : 'bg-gray-100 text-gray-800'
                       }`}>
-                        {receipt.forward_to_chennai ? 'Yes' : 'No'}
+                        {receipt.forward_to_central === 1 ? 'Yes' : 'No'}
                       </span>
                     </dd>
                   </div>
-                  {receipt.awb_no && (
+                  {receipt.courier_awb && (
                     <div>
                       <dt className="text-sm font-medium text-gray-700">AWB Number</dt>
-                      <dd className="text-sm text-gray-900">{receipt.awb_no}</dd>
+                      <dd className="text-sm text-gray-900">{receipt.courier_awb}</dd>
                     </div>
                   )}
                   <div>

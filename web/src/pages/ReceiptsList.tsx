@@ -7,14 +7,14 @@ interface Receipt {
   id: string;
   receiver_name: string;
   contact_number: string;
-  date: string;
+  receipt_date: string;
   branch: string;
   company: string;
-  count_of_boxes: number;
+  // API can sometimes return numbers as strings or missing values in demo data
+  count_boxes?: number | string;
   receiving_mode: string;
-  forward_to_chennai: boolean;
-  awb_no?: string;
-  tracking_number?: string;
+  forward_to_central: number;
+  courier_awb?: string;
   created_at: string;
   updated_at: string;
 }
@@ -39,7 +39,17 @@ const ReceiptsList: React.FC = () => {
       setError(null);
       
       const response = await api.get('/receipts');
-      setReceipts(response.data);
+      // API sometimes returns an object wrapper like { value: [...], Count: n }
+      // Normalize to always set an array into state to avoid runtime errors
+      const payload = response?.data;
+      if (Array.isArray(payload)) {
+        setReceipts(payload);
+      } else if (payload && Array.isArray(payload.value)) {
+        setReceipts(payload.value);
+      } else {
+        // fallback: empty array
+        setReceipts([]);
+      }
       
     } catch (err: any) {
       console.error('Error fetching receipts:', err);
@@ -58,6 +68,12 @@ const ReceiptsList: React.FC = () => {
   const filteredReceipts = branchFilter === 'all' 
     ? receipts 
     : receipts.filter(receipt => receipt.branch === branchFilter);
+
+  const formatDate = (value?: string) => {
+    if (!value) return '—';
+    const d = new Date(value);
+    return Number.isFinite(d.getTime()) ? d.toLocaleDateString() : '—';
+  };
 
   if (loading) {
     return (
@@ -303,7 +319,7 @@ const ReceiptsList: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-gray-600">Boxes</p>
-                  <p className="text-xl font-semibold text-gray-900">{receipts.reduce((sum, receipt) => sum + receipt.count_of_boxes, 0)}</p>
+                  <p className="text-xl font-semibold text-gray-900">{receipts.reduce((sum, receipt) => sum + Number(receipt.count_boxes ?? 0), 0)}</p>
                 </div>
                 <div className="w-8 h-8 bg-yellow-100 rounded-lg flex items-center justify-center">
                   <svg className="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -317,7 +333,7 @@ const ReceiptsList: React.FC = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-gray-600">Forwarded</p>
-                  <p className="text-xl font-semibold text-gray-900">{receipts.filter(r => r.forward_to_chennai).length}</p>
+                  <p className="text-xl font-semibold text-gray-900">{receipts.filter(r => r.forward_to_central === 1).length}</p>
                 </div>
                 <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
                   <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -414,13 +430,13 @@ const ReceiptsList: React.FC = () => {
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(receipt.date).toLocaleDateString()}
+                        {formatDate(receipt.receipt_date)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {receipt.branch}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {receipt.count_of_boxes}
+                        {Number(receipt.count_boxes ?? 0)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
@@ -433,7 +449,7 @@ const ReceiptsList: React.FC = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {receipt.forward_to_chennai ? (
+                        {receipt.forward_to_central === 1 ? (
                           <span className="text-green-600">Yes</span>
                         ) : (
                           <span className="text-gray-400">No</span>
@@ -465,10 +481,10 @@ const ReceiptsList: React.FC = () => {
                           <button
                             onClick={async () => {
                               try {
-                                const newStatus = !receipt.forward_to_chennai;
+                                const newStatus = receipt.forward_to_central === 1 ? 0 : 1;
                                 await api.put(`/receipts/${receipt.id}`, {
                                   ...receipt,
-                                  forward_to_chennai: newStatus
+                                  forward_to_central: newStatus
                                 });
                                 fetchReceipts(); // Refresh the list
                               } catch (err) {
@@ -477,16 +493,16 @@ const ReceiptsList: React.FC = () => {
                               }
                             }}
                             className="inline-flex items-center px-2 py-1 text-yellow-600 hover:text-yellow-900 hover:bg-yellow-50 rounded transition-colors"
-                            title={receipt.forward_to_chennai ? 'Unforward to Chennai' : 'Forward to Chennai'}
+                            title={receipt.forward_to_central === 1 ? 'Unforward to Central' : 'Forward to Central'}
                           >
                             <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              {receipt.forward_to_chennai ? (
+                              {receipt.forward_to_central === 1 ? (
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
                               ) : (
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 9l3 3m0 0l-3 3m3-3H8m13 0a9 9 0 11-18 0 9 9 0 0118 0z" />
                               )}
                             </svg>
-                            {receipt.forward_to_chennai ? 'Unforward' : 'Forward'}
+                            {receipt.forward_to_central === 1 ? 'Unforward' : 'Forward'}
                           </button>
                         </div>
                       </td>

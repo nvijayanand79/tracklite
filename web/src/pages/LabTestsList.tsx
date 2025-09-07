@@ -3,13 +3,15 @@ import { useNavigate } from 'react-router-dom';
 import api from '../services/api';
 
 interface LabTest {
-  id: number;
-  test_name?: string;
-  sample_type?: string;
-  test_status?: string;
-  owner_name?: string;
-  created_at?: string;
-  location?: string;
+  id: string;
+  receipt_id: string;
+  lab_doc_no: string;
+  lab_person: string;
+  test_status: 'IN_PROGRESS' | 'COMPLETED';
+  lab_report_status: string;
+  remarks: string;
+  created_at: string;
+  updated_at: string;
 }
 
 interface LabTestStats {
@@ -40,14 +42,15 @@ const LabTestsList: React.FC = () => {
     setError(null);
     try {
       const response = await api.get('/labtests/');
-      const labTestsData = response.data;
+      // API returns {value: [...], Count: number} structure
+      const labTestsData = response.data.value || response.data;
       
       setLabTests(labTestsData);
       
       // Calculate stats
       const total = labTestsData.length;
-      const pending = labTestsData.filter((test: LabTest) => test.test_status === 'pending').length;
-      const completed = labTestsData.filter((test: LabTest) => test.test_status === 'completed').length;
+      const pending = labTestsData.filter((test: LabTest) => test.test_status === 'IN_PROGRESS').length;
+      const completed = labTestsData.filter((test: LabTest) => test.test_status === 'COMPLETED').length;
       
       setStats({ total, pending, completed });
     } catch (error) {
@@ -59,9 +62,9 @@ const LabTestsList: React.FC = () => {
   };
 
   const filteredLabTests = labTests.filter(test => {
-    const matchesSearch = (test.test_name?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-                         (test.sample_type?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
-                         (test.owner_name?.toLowerCase() || '').includes(searchTerm.toLowerCase());
+    const matchesSearch = (test.lab_doc_no?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+                         (test.lab_person?.toLowerCase() || '').includes(searchTerm.toLowerCase()) ||
+                         (test.remarks?.toLowerCase() || '').includes(searchTerm.toLowerCase());
     const matchesStatus = statusFilter === 'all' || test.test_status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -180,9 +183,8 @@ const LabTestsList: React.FC = () => {
                     className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   >
                     <option value="all">All Statuses</option>
-                    <option value="pending">Pending</option>
-                    <option value="completed">Completed</option>
-                    <option value="priority">Priority</option>
+                    <option value="IN_PROGRESS">In Progress</option>
+                    <option value="COMPLETED">Completed</option>
                   </select>
                 </div>
               </div>
@@ -209,9 +211,11 @@ const LabTestsList: React.FC = () => {
                     <table className="min-w-full">
                       <thead className="bg-gray-50">
                         <tr>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Test ID</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lab Doc No</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lab Person</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Test Status</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Report Status</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created Date</th>
                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
                       </thead>
@@ -219,17 +223,22 @@ const LabTestsList: React.FC = () => {
                         {filteredLabTests.map((test) => (
                           <tr key={test.id} className="hover:bg-gray-50">
                             <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm font-medium text-gray-900">#{test.id}</div>
+                              <div className="text-sm font-medium text-gray-900">{test.lab_doc_no}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-900">{test.lab_person}</div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                                test.test_status === 'completed' ? 'bg-green-100 text-green-800' :
-                                test.test_status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                                test.test_status === 'priority' ? 'bg-red-100 text-red-800' :
+                                test.test_status === 'COMPLETED' ? 'bg-green-100 text-green-800' :
+                                test.test_status === 'IN_PROGRESS' ? 'bg-yellow-100 text-yellow-800' :
                                 'bg-gray-100 text-gray-800'
                               }`}>
                                 {test.test_status || 'Unknown'}
                               </span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm text-gray-900">{test.lab_report_status}</div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="text-sm text-gray-900">

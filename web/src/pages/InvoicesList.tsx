@@ -35,7 +35,8 @@ const InvoicesList: React.FC = () => {
       setError(null);
       
       const response = await api.get('/invoices');
-      setInvoices(response.data);
+      // API returns {value: [...], Count: number} structure
+      setInvoices(response.data.value || response.data);
       
     } catch (err: any) {
       console.error('Error fetching invoices:', err);
