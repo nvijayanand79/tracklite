@@ -37,16 +37,19 @@ async def create_report(
     return ReportRead.model_validate(db_report)
 
 
-@router.get("/", response_model=List[ReportRead])
+@router.get("/")
 async def list_reports(
     final_status: Optional[FinalStatus] = Query(None, description="Filter by final status"),
     labtest_id: Optional[uuid.UUID] = Query(None, description="Filter by lab test ID"),
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
-    """List all reports with optional filtering"""
+    """List all reports with optional filtering and joined lab test + receipt data"""
     
-    query = select(Report).options(selectinload(Report.labtest))
+    # Load both labtest and nested receipt relationships
+    query = select(Report).options(
+        selectinload(Report.labtest).selectinload(LabTest.receipt)
+    )
     
     # Apply filters
     if final_status:
@@ -60,20 +63,53 @@ async def list_reports(
     result = await db.execute(query)
     reports = result.scalars().all()
     
-    return [ReportRead.model_validate(report) for report in reports]
+    # Convert to enhanced format with flattened data
+    enhanced_reports = []
+    for report in reports:
+        report_dict = report.to_dict()
+        
+        # Add lab test data
+        if report.labtest:
+            report_dict.update({
+                'receipt_id': str(report.labtest.receipt_id) if report.labtest.receipt_id else None,
+                'lab_doc_no': report.labtest.lab_doc_no,
+                'lab_person': report.labtest.lab_person,
+                'test_status': report.labtest.test_status.value,
+                'lab_report_status': report.labtest.lab_report_status.value,
+                'lab_remarks': report.labtest.remarks
+            })
+            
+            # Add receipt data
+            if report.labtest.receipt:
+                receipt = report.labtest.receipt
+                report_dict.update({
+                    'receiver_name': receipt.receiver_name,
+                    'contact_number': receipt.contact_number,
+                    'branch': receipt.branch,
+                    'company': receipt.company,
+                    'count_boxes': receipt.count_boxes,
+                    'receiving_mode': receipt.receiving_mode.value,
+                    'receipt_date': receipt.receipt_date
+                })
+        
+        enhanced_reports.append(report_dict)
+    
+    return enhanced_reports
 
 
-@router.get("/{report_id}", response_model=ReportRead)
+@router.get("/{report_id}")
 async def get_report(
     report_id: str,
     db: AsyncSession = Depends(get_db),
     current_user: dict = Depends(get_current_user)
 ):
-    """Get a specific report by ID"""
+    """Get a specific report by ID with joined lab test + receipt data"""
     
     result = await db.execute(
         select(Report)
-        .options(selectinload(Report.labtest))
+        .options(
+            selectinload(Report.labtest).selectinload(LabTest.receipt)
+        )
         .where(Report.id == report_id)
     )
     report = result.scalar_one_or_none()
@@ -81,7 +117,34 @@ async def get_report(
     if not report:
         raise HTTPException(status_code=404, detail="Report not found")
     
-    return ReportRead.model_validate(report)
+    # Convert to enhanced format with flattened data
+    report_dict = report.to_dict()
+    
+    # Add lab test data
+    if report.labtest:
+        report_dict.update({
+            'receipt_id': str(report.labtest.receipt_id) if report.labtest.receipt_id else None,
+            'lab_doc_no': report.labtest.lab_doc_no,
+            'lab_person': report.labtest.lab_person,
+            'test_status': report.labtest.test_status.value,
+            'lab_report_status': report.labtest.lab_report_status.value,
+            'lab_remarks': report.labtest.remarks
+        })
+        
+        # Add receipt data
+        if report.labtest.receipt:
+            receipt = report.labtest.receipt
+            report_dict.update({
+                'receiver_name': receipt.receiver_name,
+                'contact_number': receipt.contact_number,
+                'branch': receipt.branch,
+                'company': receipt.company,
+                'count_boxes': receipt.count_boxes,
+                'receiving_mode': receipt.receiving_mode.value,
+                'receipt_date': receipt.receipt_date
+            })
+    
+    return report_dict
 
 
 @router.options("/{report_id}")
